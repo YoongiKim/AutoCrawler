@@ -1,6 +1,8 @@
 # AutoCrawler
 Google, Naver multiprocess image crawler
 
+![](img/animation.gif)
+
 # How to use
 
 1. Install Chrome

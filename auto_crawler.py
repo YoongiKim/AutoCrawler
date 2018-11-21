@@ -19,6 +19,7 @@ import os
 import requests
 import shutil
 from multiprocessing import Pool
+import argparse
 
 import google
 import naver
@@ -124,7 +125,13 @@ class AutoCrawler:
             print('Exception {} - {}'.format(keyword, e))
 
     def download(self, args):
-        self.download_from_site(keyword=args[0], site=args[1], collect_links_func=args[2])
+        func = None
+        if args[1] == 'google':
+            func = google.collect_links
+        elif args[1] == 'naver':
+            func = naver.collect_links
+
+        self.download_from_site(keyword=args[0], site=args[1], collect_links_func=func)
 
     def do_crawling(self):
         keywords = self.get_keywords()
@@ -133,10 +140,10 @@ class AutoCrawler:
 
         for keyword in keywords:
             if self.do_google:
-                tasks.append([keyword, 'google', google.collect_links])
+                tasks.append([keyword, 'google'])
 
             if self.do_naver:
-                tasks.append([keyword, 'naver', naver.collect_links])
+                tasks.append([keyword, 'naver'])
 
         pool = Pool(self.n_threads)
         pool.map_async(self.download, tasks)
@@ -189,5 +196,20 @@ class AutoCrawler:
 
 
 if __name__ == '__main__':
-    crawler = AutoCrawler(skip_already_exist=True, n_threads=4, do_google=True, do_naver=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--skip', type=str, default='true',
+                        help='Skips keyword already downloaded before. This is needed when re-downloading.')
+    parser.add_argument('--threads', type=int, default=4, help='Number of threads to download.')
+    parser.add_argument('--google', type=str, default='true', help='Download from google.com (boolean)')
+    parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
+    args = parser.parse_args()
+
+    _skip = False if str(args.skip).lower() == 'false' else True
+    _threads = args.threads
+    _google = False if str(args.google).lower() == 'false' else True
+    _naver = False if str(args.naver).lower() == 'false' else True
+
+    print('Options - skip:{}, threads:{}, google:{}, naver:{}'.format(_skip, _threads, _google, _naver))
+
+    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads, do_google=_google, do_naver=_naver)
     crawler.do_crawling()

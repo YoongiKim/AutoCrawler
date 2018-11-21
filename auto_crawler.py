@@ -125,13 +125,10 @@ class AutoCrawler:
             print('Exception {} - {}'.format(keyword, e))
 
     def download(self, args):
-        func = None
         if args[1] == 'google':
-            func = google.collect_links
+            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=google.collect_links)
         elif args[1] == 'naver':
-            func = naver.collect_links
-
-        self.download_from_site(keyword=args[0], site=args[1], collect_links_func=func)
+            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=naver.collect_links)
 
     def do_crawling(self):
         keywords = self.get_keywords()

@@ -37,3 +37,6 @@ usage: python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--na
 Detects data imblance based on number of files.
 
 When crawling ends, the message show you what directory has under 50% of average files.
+
+I recommend you to remove those directories and re-download.
+

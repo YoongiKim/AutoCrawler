@@ -21,8 +21,53 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import ElementNotVisibleException
 
+def google(keyword):
+    browser = webdriver.Chrome()
 
-def collect_links(keyword):
+    browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch".format(keyword))
+
+    time.sleep(1)
+
+    print('Scrolling down')
+
+    elem = browser.find_element_by_tag_name("body")
+
+    for i in range(60):
+        elem.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.2)
+
+    try:
+        btn_more = browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
+        btn_more.click()
+
+        for i in range(60):
+            elem.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.2)
+
+    except ElementNotVisibleException:
+        pass
+
+    photo_grid_boxes = browser.find_elements(By.XPATH, '//div[@class="rg_bx rg_di rg_el ivg-i"]')
+
+    print('Scraping links')
+
+    links = []
+
+    for box in photo_grid_boxes:
+        imgs = box.find_elements(By.TAG_NAME, 'img')
+
+        for img in imgs:
+            src = img.get_attribute("src")
+            if src[0] != 'd':
+                links.append(src)
+
+    print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
+    browser.close()
+
+    return links
+
+
+def naver(keyword):
     browser = webdriver.Chrome()
 
     browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))

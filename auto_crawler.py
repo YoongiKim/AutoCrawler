@@ -20,9 +20,8 @@ import requests
 import shutil
 from multiprocessing import Pool
 import argparse
+import collect_links
 
-import google
-import naver
 
 class AutoCrawler:
     def __init__(self, skip_already_exist=True, n_threads=4, do_google=True, do_naver=True, download_path='download'):
@@ -126,9 +125,9 @@ class AutoCrawler:
 
     def download(self, args):
         if args[1] == 'google':
-            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=google.collect_links)
+            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=collect_links.google)
         elif args[1] == 'naver':
-            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=naver.collect_links)
+            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=collect_links.naver)
 
     def do_crawling(self):
         keywords = self.get_keywords()
@@ -152,6 +151,7 @@ class AutoCrawler:
 
     def integrity_check(self):
         print('Integrity Checking...')
+        print('Data imbalance checking...')
 
         dict_num_files = {}
 
@@ -172,7 +172,7 @@ class AutoCrawler:
 
         if len(dict_too_small) >= 1:
             for dir, n_files in dict_too_small.items():
-                print('_________________________________')
+                print('Data imbalance detected.')
                 print('Below keywords have smaller than 50% of average file count.')
                 print('I recommend you to remove these directories and re-download for that keyword.')
                 print('_________________________________')

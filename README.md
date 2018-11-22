@@ -31,3 +31,9 @@ usage: python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--na
 
 --naver NAVER      Download from naver.com (boolean)
 
+
+# Integrity Checking
+
+Detects data imblance based on number of files.
+
+When crawling ends, the message show you what directory has under 50% of average files.

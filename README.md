@@ -32,7 +32,7 @@ usage: python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--na
 --naver NAVER      Download from naver.com (boolean)
 
 
-# Integrity Checking
+# Data Imbalance Detection
 
 Detects data imblance based on number of files.
 

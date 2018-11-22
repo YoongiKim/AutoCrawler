@@ -147,10 +147,11 @@ class AutoCrawler:
         pool.join()
         print('pool join')
 
-        self.integrity_check()
+        self.imbalance_check()
 
-    def integrity_check(self):
-        print('Integrity Checking...')
+        print('End Program')
+
+    def imbalance_check(self):
         print('Data imbalance checking...')
 
         dict_num_files = {}
@@ -190,6 +191,8 @@ class AutoCrawler:
                     print('Removed {}'.format(dir))
 
                 print('Now re-run this program to re-download removed files. (with skip_already_exist=True)')
+        else:
+            print('Data imbalance not detected.')
 
 
 if __name__ == '__main__':

@@ -7,17 +7,13 @@ Google, Naver multiprocess image crawler
 
 1. Install Chrome
 
-2. Extract chromedriver.zip
+2. pip install -r requirements.txt
 
-3. Add PATH where you extracted chromedriver.
+3. Write search keywords in keywords.txt
 
-4. pip install -r requirements.txt
+4. **Run auto_crawler.py**
 
-5. Write search keywords in keywords.txt
-
-6. Run auto_crawler.py
-
-7. Files will be downloaded to 'download' directory.
+5. Files will be downloaded to 'download' directory.
 
 
 # Arguments

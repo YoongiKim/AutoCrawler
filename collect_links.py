@@ -20,94 +20,109 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import ElementNotVisibleException
-
-def google(keyword):
-    browser = webdriver.Chrome()
-
-    browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch".format(keyword))
-
-    time.sleep(1)
-
-    print('Scrolling down')
-
-    elem = browser.find_element_by_tag_name("body")
-
-    for i in range(60):
-        elem.send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.2)
-
-    try:
-        btn_more = browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
-        btn_more.click()
-
-        for i in range(60):
-            elem.send_keys(Keys.PAGE_DOWN)
-            time.sleep(0.2)
-
-    except ElementNotVisibleException:
-        pass
-
-    photo_grid_boxes = browser.find_elements(By.XPATH, '//div[@class="rg_bx rg_di rg_el ivg-i"]')
-
-    print('Scraping links')
-
-    links = []
-
-    for box in photo_grid_boxes:
-        imgs = box.find_elements(By.TAG_NAME, 'img')
-
-        for img in imgs:
-            src = img.get_attribute("src")
-            if src[0] != 'd':
-                links.append(src)
-
-    print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
-    browser.close()
-
-    return links
+import platform
 
 
-def naver(keyword):
-    browser = webdriver.Chrome()
+class CollectLinks:
+    def __init__(self):
+        executable = ''
 
-    browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
+        if platform.system() == 'Windows':
+            print('Detected OS : Windows')
+            executable = './chromedriver/chromedriver_win.exe'
+        elif platform.system() == 'Linux':
+            print('Detected OS : Linux')
+            executable = './chromedriver/chromedriver_linux'
+        elif platform.system() == 'Darwin':
+            print('Detected OS : Darwin')
+            executable = './chromedriver/chromedriver_mac'
+        else:
+            assert False, 'Unknown OS Type'
 
-    time.sleep(1)
+        self.browser = webdriver.Chrome(executable)
 
-    print('Scrolling down')
+    def google(self, keyword):
+        self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch".format(keyword))
 
-    elem = browser.find_element_by_tag_name("body")
+        time.sleep(1)
 
-    for i in range(60):
-        elem.send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.2)
+        print('Scrolling down')
 
-    try:
-        btn_more = browser.find_element(By.XPATH, '//a[@class="btn_more _more"]')
-        btn_more.click()
+        elem = self.browser.find_element_by_tag_name("body")
 
         for i in range(60):
             elem.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.2)
 
-    except ElementNotVisibleException:
-        pass
+        try:
+            btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
+            btn_more.click()
 
-    photo_grid_boxes = browser.find_elements(By.XPATH, '//div[@class="photo_grid _box"]')
+            for i in range(60):
+                elem.send_keys(Keys.PAGE_DOWN)
+                time.sleep(0.2)
 
-    print('Scraping links')
+        except ElementNotVisibleException:
+            pass
 
-    links = []
+        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="rg_bx rg_di rg_el ivg-i"]')
 
-    for box in photo_grid_boxes:
-        imgs = box.find_elements(By.CLASS_NAME, '_img')
+        print('Scraping links')
 
-        for img in imgs:
-            src = img.get_attribute("src")
-            if src[0] != 'd':
-                links.append(src)
+        links = []
 
-    print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
-    browser.close()
+        for box in photo_grid_boxes:
+            imgs = box.find_elements(By.TAG_NAME, 'img')
 
-    return links
+            for img in imgs:
+                src = img.get_attribute("src")
+                if src[0] != 'd':
+                    links.append(src)
+
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
+        self.browser.close()
+
+        return links
+
+    def naver(self, keyword):
+        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
+
+        time.sleep(1)
+
+        print('Scrolling down')
+
+        elem = self.browser.find_element_by_tag_name("body")
+
+        for i in range(60):
+            elem.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.2)
+
+        try:
+            btn_more = self.browser.find_element(By.XPATH, '//a[@class="btn_more _more"]')
+            btn_more.click()
+
+            for i in range(60):
+                elem.send_keys(Keys.PAGE_DOWN)
+                time.sleep(0.2)
+
+        except ElementNotVisibleException:
+            pass
+
+        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="photo_grid _box"]')
+
+        print('Scraping links')
+
+        links = []
+
+        for box in photo_grid_boxes:
+            imgs = box.find_elements(By.CLASS_NAME, '_img')
+
+            for img in imgs:
+                src = img.get_attribute("src")
+                if src[0] != 'd':
+                    links.append(src)
+
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
+        self.browser.close()
+
+        return links

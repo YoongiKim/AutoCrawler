@@ -20,7 +20,19 @@ import requests
 import shutil
 from multiprocessing import Pool
 import argparse
-import collect_links
+from collect_links import CollectLinks
+
+
+class Sites:
+    GOOGLE = 1
+    NAVER = 2
+
+    @staticmethod
+    def get_text(code):
+        if code == Sites.GOOGLE:
+            return 'google'
+        elif code == Sites.NAVER:
+            return 'naver'
 
 
 class AutoCrawler:
@@ -93,22 +105,25 @@ class AutoCrawler:
         except Exception as e:
             print('Save failed - {}'.format(e))
 
-    def download_images(self, keyword, links, site):
+    def download_images(self, keyword, links, site_name):
         self.make_dir('{}/{}'.format(self.download_path, keyword))
         total = len(links)
 
         for index, link in enumerate(links):
             try:
-                print('Downloading {} from {}: {} / {}'.format(keyword, site, index+1, total))
+                print('Downloading {} from {}: {} / {}'.format(keyword, site_name, index + 1, total))
                 response = requests.get(link, stream=True)
-                self.save_image_to_file(response, '{}/{}/{}_{}.jpg'.format(self.download_path, keyword, site, index))
+                self.save_image_to_file(response, '{}/{}/{}_{}.jpg'.format(self.download_path, keyword, site_name, index))
                 del response
 
             except Exception as e:
                 print('Download failed - ', e)
                 continue
 
-    def download_from_site(self, keyword, site, collect_links_func):
+    def download_from_site(self, keyword, site_code):
+        site_name = Sites.get_text(site_code)
+        collect = CollectLinks()  # initialize chrome driver
+
         try:
             dirname = '{}/{}'.format(self.download_path, keyword)
 
@@ -116,22 +131,28 @@ class AutoCrawler:
                 print('Skipping already existing directory {}'.format(dirname))
                 return
 
-            print('Collecting links... {} from {}'.format(keyword, site))
-            links = collect_links_func(keyword)
+            print('Collecting links... {} from {}'.format(keyword, site_name))
 
-            print('Downloading images from collected links... {} from {}'.format(keyword, site))
-            self.download_images(keyword, links, site)
+            if site_code == Sites.GOOGLE:
+                links = collect.google(keyword)
 
-            print('Done {} : {}'.format(site, keyword))
+            elif site_code == Sites.NAVER:
+                links = collect.naver(keyword)
+
+            else:
+                print('Invalid Site Code')
+                links = []
+
+            print('Downloading images from collected links... {} from {}'.format(keyword, site_name))
+            self.download_images(keyword, links, site_name)
+
+            print('Done {} : {}'.format(site_name, keyword))
 
         except Exception as e:
-            print('Exception {} - {}'.format(keyword, e))
+            print('Exception {}:{} - {}'.format(site_name, keyword, e))
 
     def download(self, args):
-        if args[1] == 'google':
-            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=collect_links.google)
-        elif args[1] == 'naver':
-            self.download_from_site(keyword=args[0], site=args[1], collect_links_func=collect_links.naver)
+        self.download_from_site(keyword=args[0], site_code=args[1])
 
     def do_crawling(self):
         keywords = self.get_keywords()
@@ -140,10 +161,10 @@ class AutoCrawler:
 
         for keyword in keywords:
             if self.do_google:
-                tasks.append([keyword, 'google'])
+                tasks.append([keyword, Sites.GOOGLE])
 
             if self.do_naver:
-                tasks.append([keyword, 'naver'])
+                tasks.append([keyword, Sites.NAVER])
 
         pool = Pool(self.n_threads)
         pool.map_async(self.download, tasks)

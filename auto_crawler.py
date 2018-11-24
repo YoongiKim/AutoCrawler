@@ -37,6 +37,10 @@ class AutoCrawler:
         self.do_naver = do_naver
         self.download_path = download_path
 
+        # If download_path doesn't exist -> make one
+        if not os.path.exists('./{}'.format(self.download_path)):
+            os.mkdir('./{}'.format(self.download_path))
+
     @staticmethod
     def all_dirs(path):
         paths = []

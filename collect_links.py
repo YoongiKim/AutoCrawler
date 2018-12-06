@@ -126,3 +126,50 @@ class CollectLinks:
         self.browser.close()
 
         return links
+
+    def google_full(self, keyword):
+        self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch".format(keyword))
+
+        time.sleep(2)
+
+        first_photo_grid_boxes = self.browser.find_element(By.XPATH, '//img[@class="rg_ic rg_i"]')
+        print(first_photo_grid_boxes.get_attribute('id'))
+
+        first_photo_grid_boxes.click()
+
+        time.sleep(1)
+
+        container = self.browser.find_element(By.XPATH, '//div[@class="irc_land irc_bg"]')
+        print(container.get_attribute('id'))
+
+        img = container.find_element_by_id("irc-mi")
+        print(img.get_attribute('src'))
+
+        next_button = container.find_element(By.XPATH, '//div[@class="WPyac" and @id="irc-rac"]')
+        print(next_button.get_attribute('id'))
+        next_button.click()
+
+        input()
+
+        # print('Scraping links')
+        #
+        # links = []
+        #
+        # for box in photo_grid_boxes:
+        #     imgs = box.find_elements(By.TAG_NAME, 'img')
+        #
+        #     for img in imgs:
+        #         src = img.get_attribute("src")
+        #         if src[0] != 'd':
+        #             links.append(src)
+        #
+        # print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
+        self.browser.close()
+
+        return links
+
+
+if __name__ == '__main__':
+    collect = CollectLinks()
+    links = collect.google_full('python')
+    print(links)

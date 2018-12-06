@@ -55,7 +55,8 @@ class CollectLinks:
             time.sleep(0.2)
 
         try:
-            btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
+            # btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
+            btn_more = self.browser.find_element(By.XPATH, '//input[@id="smb"]')
             btn_more.click()
 
             for i in range(60):

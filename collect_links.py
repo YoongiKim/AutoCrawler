@@ -22,7 +22,6 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import ElementNotVisibleException
 import platform
 
-
 class CollectLinks:
     def __init__(self):
         executable = ''
@@ -169,8 +168,72 @@ class CollectLinks:
 
         return links
 
+    def naver_full(self, keyword):
+        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
+
+        time.sleep(1)
+
+        print('Scrolling down')
+
+        elem = self.browser.find_element_by_tag_name("body")
+
+        for i in range(60):
+            elem.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.2)
+
+        try:
+            btn_more = self.browser.find_element(By.XPATH, '//a[@class="btn_more _more"]')
+            btn_more.click()
+
+            for i in range(60):
+                elem.send_keys(Keys.PAGE_DOWN)
+                time.sleep(0.2)
+
+        except ElementNotVisibleException:
+            pass
+
+        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="photo_grid _box"]')
+
+        links = []
+
+        for box in photo_grid_boxes:
+            areas = box.find_elements(By.XPATH, '//div[@class="img_area _item"]')
+            for area in areas:
+                data_id = area.get_attribute('data-id')
+                print(data_id)
+                self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}#imgId={}&vType=rollout".format(keyword, data_id))
+                time.sleep(1)
+
+
+        # print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
+        # self.browser.close()
+
+        return links
+    # def naver_full(self, keyword):
+    #     from selenium.webdriver.common.action_chains import ActionChains
+    #     mouse = webdriver.ActionChains(self.browser)
+    #
+    #     self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
+    #     time.sleep(1)
+    #     elem = self.browser.find_element_by_tag_name("body")
+    #
+    #     first_photo_grid_boxes = elem.find_element(By.XPATH, '//span[@class="img_border"]')
+    #     first_photo_grid_boxes.click()
+    #
+    #     links = []
+    #
+    #     img = elem.find_element(By.XPATH, '//img[@class="_image_source"]')
+    #     link = img.get_attribute("src")
+    #     print(link)
+    #     links.append(link)
+    #
+    #     next_button = elem.find_element(By.XPATH, '//a[@class="btn_next _next"]')
+    #     mouse.move_to_element(next_button).click().perform()
+    #
+    #     time.sleep(1)
+
 
 if __name__ == '__main__':
     collect = CollectLinks()
-    links = collect.google_full('python')
+    links = collect.naver_full('python')
     print(links)

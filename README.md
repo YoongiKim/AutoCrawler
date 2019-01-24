@@ -19,7 +19,7 @@ Google, Naver multiprocess image crawler
 # Arguments
 usage: python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--naver true]
 
---skip SKIP        Skips keyword already downloaded before. This is needed when re-downloading.
+--skip SKIP        Skips keyword if downloaded directory already exists. This is needed when re-downloading.
 
 --threads THREADS  Number of threads to download.
 
@@ -36,3 +36,5 @@ When crawling ends, the message show you what directory has under 50% of average
 
 I recommend you to remove those directories and re-download.
 
+
+## You can customize for almost every sites you want!

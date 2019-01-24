@@ -11,7 +11,7 @@ Google, Naver multiprocess image crawler
 
 3. Write search keywords in keywords.txt
 
-4. **Run auto_crawler.py**
+4. **main.py**
 
 5. Files will be downloaded to 'download' directory.
 
@@ -36,5 +36,3 @@ When crawling ends, the message show you what directory has under 50% of average
 
 I recommend you to remove those directories and re-download.
 
-
-## You can customize for almost every sites you want!

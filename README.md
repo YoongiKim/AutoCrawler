@@ -11,7 +11,7 @@ Google, Naver multiprocess image crawler
 
 3. Write search keywords in keywords.txt
 
-4. **main.py**
+4. **Run "main.py"**
 
 5. Files will be downloaded to 'download' directory.
 

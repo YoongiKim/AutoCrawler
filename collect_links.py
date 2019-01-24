@@ -33,7 +33,7 @@ class CollectLinks:
             print('Detected OS : Linux')
             executable = './chromedriver/chromedriver_linux'
         elif platform.system() == 'Darwin':
-            print('Detected OS : Darwin')
+            print('Detected OS : Mac')
             executable = './chromedriver/chromedriver_mac'
         else:
             assert False, 'Unknown OS Type'

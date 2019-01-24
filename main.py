@@ -170,7 +170,7 @@ class AutoCrawler:
         pool.map_async(self.download, tasks)
         pool.close()
         pool.join()
-        print('pool join')
+        print('Task ended. Pool join.')
 
         self.imbalance_check()
 

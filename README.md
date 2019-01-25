@@ -36,3 +36,13 @@ When crawling ends, the message show you what directory has under 50% of average
 
 I recommend you to remove those directories and re-download.
 
+
+# Remote crawling through SSH on your server
+
+sudo apt-get install xvfb <- This is virtual display
+
+sudo apt-get install screen <- This will allow you to close SSH terminal while running. But I won't explain how to use it.
+
+Xvfb :99 -ac
+
+DISPLAY=:99 python3 main.py

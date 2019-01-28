@@ -41,7 +41,7 @@ I recommend you to remove those directories and re-download.
 
 sudo apt-get install xvfb <- This is virtual display
 
-sudo apt-get install screen <- This will allow you to close SSH terminal while running. But I won't explain how to use it.
+sudo apt-get install screen <- This will allow you to close SSH terminal while running. (I won't explain how to use it)
 
 Xvfb :99 -ac
 

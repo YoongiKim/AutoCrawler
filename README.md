@@ -1,7 +1,7 @@
 # AutoCrawler
 Google, Naver multiprocess image crawler
 
-![](img/animation.gif)
+![](animation.gif)
 
 # How to use
 
@@ -46,3 +46,8 @@ sudo apt-get install screen <- This will allow you to close SSH terminal while r
 Xvfb :99 -ac
 
 DISPLAY=:99 python3 main.py
+
+
+# Customize
+
+You can make your own crawler by changing collect_links.py

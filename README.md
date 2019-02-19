@@ -1,5 +1,5 @@
 # AutoCrawler
-Google, Naver multiprocess image crawler
+Google, Naver multiprocess image crawler (High Quality & Speed & Customizable)
 
 ![](animation.gif)
 
@@ -19,7 +19,7 @@ Google, Naver multiprocess image crawler
 # Arguments
 usage:
 ```
-python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false]
+python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false]
 ```
 
 ```
@@ -62,7 +62,7 @@ sudo apt-get install screen <- This will allow you to close SSH terminal while r
 
 screen -S s1
 
-Xvfb :99 -ac
+Xvfb :99 -ac &
 
 DISPLAY=:99 python3 main.py
 ```

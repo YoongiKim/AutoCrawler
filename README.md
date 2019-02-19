@@ -17,7 +17,10 @@ Google, Naver multiprocess image crawler
 
 
 # Arguments
-usage: python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--naver true]
+usage:
+```
+python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false]
+```
 
 --skip SKIP        Skips keyword if downloaded directory already exists. This is needed when re-downloading.
 
@@ -26,6 +29,17 @@ usage: python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--na
 --google GOOGLE    Download from google.com (boolean)
 
 --naver NAVER      Download from naver.com (boolean)
+
+--full FULL        Download full resolution image rather than thumbnails (slow)
+
+--face FACE        Face search mode
+
+
+# Full Resolution Mode
+
+You can download full resolution image of JPG, GIF, PNG files by specifying --full true
+
+
 
 
 # Data Imbalance Detection

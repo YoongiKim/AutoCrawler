@@ -1,7 +1,7 @@
 # AutoCrawler
 Google, Naver multiprocess image crawler (High Quality & Speed & Customizable)
 
-![](animation.gif)
+![](docs/animation.gif)
 
 # How to use
 
@@ -41,6 +41,7 @@ python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--fu
 
 You can download full resolution image of JPG, GIF, PNG files by specifying --full true
 
+![](docs/full.gif)
 
 
 

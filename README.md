@@ -62,7 +62,7 @@ sudo apt-get install screen <- This will allow you to close SSH terminal while r
 
 screen -S s1
 
-Xvfb :99 -ac
+Xvfb :99 -ac &
 
 DISPLAY=:99 python3 main.py
 ```

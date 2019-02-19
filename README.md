@@ -22,17 +22,19 @@ usage:
 python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false]
 ```
 
---skip SKIP        Skips keyword if downloaded directory already exists. This is needed when re-downloading.
+```
+--skip true        Skips keyword if downloaded directory already exists. This is needed when re-downloading.
 
---threads THREADS  Number of threads to download.
+--threads 4        Number of threads to download.
 
---google GOOGLE    Download from google.com (boolean)
+--google true      Download from google.com (boolean)
 
---naver NAVER      Download from naver.com (boolean)
+--naver true       Download from naver.com (boolean)
 
---full FULL        Download full resolution image rather than thumbnails (slow)
+--full false       Download full resolution image rather than thumbnails (slow)
 
---face FACE        Face search mode
+--face flase       Face search mode
+```
 
 
 # Full Resolution Mode

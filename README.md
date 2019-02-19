@@ -31,7 +31,7 @@ python3 auto_crawler.py [--skip true] [--threads 4] [--google true] [--naver tru
 
 --naver true       Download from naver.com (boolean)
 
---full false       Download full resolution image rather than thumbnails (slow)
+--full false       Download full resolution image instead of thumbnails (slow)
 
 --face flase       Face search mode
 ```

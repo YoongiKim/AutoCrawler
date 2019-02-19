@@ -21,6 +21,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import ElementNotVisibleException
 import platform
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 class CollectLinks:
     def __init__(self):
@@ -44,6 +47,11 @@ class CollectLinks:
         pos = self.browser.execute_script("return window.pageYOffset;")
         return pos
 
+    def wait_and_click(self, xpath):
+        w = WebDriverWait(self.browser, 10)
+        elem = w.until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+        return elem
+
     def google(self, keyword, add_url=""):
         self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch{}".format(keyword, add_url))
 
@@ -59,8 +67,7 @@ class CollectLinks:
 
         try:
             # btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
-            btn_more = self.browser.find_element(By.XPATH, '//input[@id="smb"]')
-            btn_more.click()
+            self.wait_and_click('//input[@id="smb"]')
 
             for i in range(60):
                 elem.send_keys(Keys.PAGE_DOWN)
@@ -106,8 +113,7 @@ class CollectLinks:
             time.sleep(0.2)
 
         try:
-            btn_more = self.browser.find_element(By.XPATH, '//a[@class="btn_more _more"]')
-            btn_more.click()
+            self.wait_and_click('//a[@class="btn_more _more"]')
 
             for i in range(60):
                 elem.send_keys(Keys.PAGE_DOWN)
@@ -142,16 +148,14 @@ class CollectLinks:
         print('[Full Resolution Mode]')
 
         self.browser.get("https://www.google.co.kr/search?q={}&tbm=isch{}".format(keyword, add_url))
-
         time.sleep(2)
 
         elem = self.browser.find_element_by_tag_name("body")
+        time.sleep(1)
 
         print('Scraping links')
 
-        boxes = self.browser.find_elements(By.XPATH, '//div[@class="rg_bx rg_di rg_el ivg-i"]')
-
-        boxes[0].click()
+        self.wait_and_click('//div[@class="rg_bx rg_di rg_el ivg-i"]')
         time.sleep(1)
 
         links = []
@@ -196,16 +200,14 @@ class CollectLinks:
         print('[Full Resolution Mode]')
 
         self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
-
         time.sleep(2)
 
         elem = self.browser.find_element_by_tag_name("body")
+        time.sleep(1)
 
         print('Scraping links')
 
-        boxes = self.browser.find_elements(By.XPATH, '//div[@class="img_area _item"]')
-
-        boxes[0].click()
+        self.wait_and_click('//div[@class="img_area _item"]')
         time.sleep(1)
 
         links = []

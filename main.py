@@ -118,8 +118,7 @@ class AutoCrawler:
         with open(keywords_file, 'r', encoding='utf-8-sig') as f:
             text = f.read()
             lines = text.split('\n')
-            if '' in lines:
-                lines.remove('')
+            lines = filter(lambda x: x != '' and x is not None, lines)
             keywords = sorted(set(lines))
 
         print('{} keywords found: {}'.format(len(keywords), keywords))

@@ -40,8 +40,12 @@ class CollectLinks:
 
         self.browser = webdriver.Chrome(executable)
 
-    def google(self, keyword):
-        self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch".format(keyword))
+    def get_scroll(self):
+        pos = self.browser.execute_script("return window.pageYOffset;")
+        return pos
+
+    def google(self, keyword, add_url=""):
+        self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch{}".format(keyword, add_url))
 
         time.sleep(1)
 
@@ -72,20 +76,24 @@ class CollectLinks:
         links = []
 
         for box in photo_grid_boxes:
-            imgs = box.find_elements(By.TAG_NAME, 'img')
+            try:
+                imgs = box.find_elements(By.TAG_NAME, 'img')
 
-            for img in imgs:
-                src = img.get_attribute("src")
-                if src[0] != 'd':
-                    links.append(src)
+                for img in imgs:
+                    src = img.get_attribute("src")
+                    if src[0] != 'd':
+                        links.append(src)
+
+            except Exception as e:
+                print('[Exception occurred while collecting links from google] {}'.format(e))
 
         print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
         self.browser.close()
 
-        return links
+        return set(links)
 
-    def naver(self, keyword):
-        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
+    def naver(self, keyword, add_url=""):
+        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
 
         time.sleep(1)
 
@@ -115,125 +123,131 @@ class CollectLinks:
         links = []
 
         for box in photo_grid_boxes:
-            imgs = box.find_elements(By.CLASS_NAME, '_img')
+            try:
+                imgs = box.find_elements(By.CLASS_NAME, '_img')
 
-            for img in imgs:
-                src = img.get_attribute("src")
-                if src[0] != 'd':
-                    links.append(src)
+                for img in imgs:
+                    src = img.get_attribute("src")
+                    if src[0] != 'd':
+                        links.append(src)
+            except Exception as e:
+                print('[Exception occurred while collecting links from naver] {}'.format(e))
 
         print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
         self.browser.close()
 
-        return links
+        return set(links)
 
-    def google_full(self, keyword):
-        self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch".format(keyword))
+    def google_full(self, keyword, add_url=""):
+        print('[Full Resolution Mode]')
+
+        self.browser.get("https://www.google.co.kr/search?q={}&tbm=isch{}".format(keyword, add_url))
 
         time.sleep(2)
 
-        first_photo_grid_boxes = self.browser.find_element(By.XPATH, '//img[@class="rg_ic rg_i"]')
-        print(first_photo_grid_boxes.get_attribute('id'))
+        elem = self.browser.find_element_by_tag_name("body")
 
-        first_photo_grid_boxes.click()
+        print('Scraping links')
 
+        boxes = self.browser.find_elements(By.XPATH, '//div[@class="rg_bx rg_di rg_el ivg-i"]')
+
+        boxes[0].click()
         time.sleep(1)
 
-        container = self.browser.find_element(By.XPATH, '//div[@class="irc_land irc_bg"]')
-        print(container.get_attribute('id'))
+        links = []
+        count = 1
 
-        img = container.find_element_by_id("irc-mi")
-        print(img.get_attribute('src'))
+        last_scroll = 0
+        scroll_patience = 0
 
-        next_button = container.find_element(By.XPATH, '//div[@class="WPyac" and @id="irc-rac"]')
-        print(next_button.get_attribute('id'))
-        next_button.click()
+        while True:
+            try:
+                imgs = self.browser.find_elements(By.XPATH, '//div[@class="irc_c i8187 immersive-container irc-rcd"]//img[@class="irc_mi"]')
 
-        input()
+                for img in imgs:
+                    src = img.get_attribute('src')
 
-        # print('Scraping links')
-        #
-        # links = []
-        #
-        # for box in photo_grid_boxes:
-        #     imgs = box.find_elements(By.TAG_NAME, 'img')
-        #
-        #     for img in imgs:
-        #         src = img.get_attribute("src")
-        #         if src[0] != 'd':
-        #             links.append(src)
-        #
-        # print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
+                    if src not in links and src is not None:
+                        links.append(src)
+                        print('%d: %s'%(count, src))
+                        count += 1
+
+            except Exception as e:
+                print('[Exception occurred while collecting links from google_full] {}'.format(e))
+
+            scroll = self.get_scroll()
+            if scroll == last_scroll:
+                scroll_patience += 1
+            else:
+                scroll_patience = 0
+                last_scroll = scroll
+
+            if scroll_patience >= 30:
+                break
+
+            elem.send_keys(Keys.RIGHT)
+
+
         self.browser.close()
 
-        return links
+        return set(links)
 
-    def naver_full(self, keyword):
-        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
+    def naver_full(self, keyword, add_url=""):
+        print('[Full Resolution Mode]')
 
-        time.sleep(1)
+        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
 
-        print('Scrolling down')
+        time.sleep(2)
 
         elem = self.browser.find_element_by_tag_name("body")
 
-        for i in range(60):
-            elem.send_keys(Keys.PAGE_DOWN)
-            time.sleep(0.2)
+        print('Scraping links')
 
-        try:
-            btn_more = self.browser.find_element(By.XPATH, '//a[@class="btn_more _more"]')
-            btn_more.click()
+        boxes = self.browser.find_elements(By.XPATH, '//div[@class="img_area _item"]')
 
-            for i in range(60):
-                elem.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.2)
-
-        except ElementNotVisibleException:
-            pass
-
-        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="photo_grid _box"]')
+        boxes[0].click()
+        time.sleep(1)
 
         links = []
+        count = 1
 
-        for box in photo_grid_boxes:
-            areas = box.find_elements(By.XPATH, '//div[@class="img_area _item"]')
-            for area in areas:
-                data_id = area.get_attribute('data-id')
-                print(data_id)
-                self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}#imgId={}&vType=rollout".format(keyword, data_id))
-                time.sleep(1)
+        last_scroll = 0
+        scroll_patience = 0
 
+        while True:
+            try:
+                imgs = self.browser.find_elements(By.XPATH,
+                                                  '//div[@class="image_viewer_wrap _sauImageViewer"]//img[@class="_image_source"]')
 
-        # print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
-        # self.browser.close()
+                for img in imgs:
+                    src = img.get_attribute('src')
 
-        return links
-    # def naver_full(self, keyword):
-    #     from selenium.webdriver.common.action_chains import ActionChains
-    #     mouse = webdriver.ActionChains(self.browser)
-    #
-    #     self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}".format(keyword))
-    #     time.sleep(1)
-    #     elem = self.browser.find_element_by_tag_name("body")
-    #
-    #     first_photo_grid_boxes = elem.find_element(By.XPATH, '//span[@class="img_border"]')
-    #     first_photo_grid_boxes.click()
-    #
-    #     links = []
-    #
-    #     img = elem.find_element(By.XPATH, '//img[@class="_image_source"]')
-    #     link = img.get_attribute("src")
-    #     print(link)
-    #     links.append(link)
-    #
-    #     next_button = elem.find_element(By.XPATH, '//a[@class="btn_next _next"]')
-    #     mouse.move_to_element(next_button).click().perform()
-    #
-    #     time.sleep(1)
+                    if src not in links and src is not None:
+                        links.append(src)
+                        print('%d: %s' % (count, src))
+                        count += 1
+
+            except Exception as e:
+                print('[Exception occurred while collecting links from naver_full] {}'.format(e))
+
+            scroll = self.get_scroll()
+            if scroll == last_scroll:
+                scroll_patience += 1
+            else:
+                scroll_patience = 0
+                last_scroll = scroll
+
+            if scroll_patience >= 30:
+                break
+
+            elem.send_keys(Keys.RIGHT)
+
+        self.browser.close()
+
+        return set(links)
 
 
 if __name__ == '__main__':
     collect = CollectLinks()
-    links = collect.naver_full('python')
-    print(links)
+    links = collect.naver_full('박보영')
+    print(len(links), links)

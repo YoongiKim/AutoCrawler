@@ -19,7 +19,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import ElementNotVisibleException
+from selenium.common.exceptions import ElementNotVisibleException, StaleElementReferenceException
 import platform
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -49,7 +49,8 @@ class CollectLinks:
 
     def wait_and_click(self, xpath):
         w = WebDriverWait(self.browser, 10)
-        elem = w.until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+        elem = w.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        webdriver.ActionChains(self.browser).move_to_element(elem).click(elem).perform()
         return elem
 
     def google(self, keyword, add_url=""):
@@ -151,11 +152,9 @@ class CollectLinks:
         time.sleep(1)
 
         elem = self.browser.find_element_by_tag_name("body")
-        time.sleep(1)
 
         print('Scraping links')
 
-        elem.send_keys(Keys.DOWN)
         self.wait_and_click('//img[@class="rg_ic rg_i"]')
         time.sleep(1)
 
@@ -177,6 +176,8 @@ class CollectLinks:
                         # print('%d: %s'%(count, src))
                         # count += 1
 
+            except StaleElementReferenceException:
+                print('[Expected Exception - StaleElementReferenceException]')
             except Exception as e:
                 print('[Exception occurred while collecting links from google_full] {}'.format(e))
 
@@ -203,10 +204,9 @@ class CollectLinks:
         print('[Full Resolution Mode]')
 
         self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
-        time.sleep(2)
+        time.sleep(1)
 
         elem = self.browser.find_element_by_tag_name("body")
-        time.sleep(1)
 
         print('Scraping links')
 
@@ -232,6 +232,8 @@ class CollectLinks:
                         # print('%d: %s' % (count, src))
                         # count += 1
 
+            except StaleElementReferenceException:
+                print('[Expected Exception - StaleElementReferenceException]')
             except Exception as e:
                 print('[Exception occurred while collecting links from naver_full] {}'.format(e))
 

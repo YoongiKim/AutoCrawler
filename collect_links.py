@@ -148,13 +148,14 @@ class CollectLinks:
         print('[Full Resolution Mode]')
 
         self.browser.get("https://www.google.co.kr/search?q={}&tbm=isch{}".format(keyword, add_url))
-        time.sleep(2)
+        time.sleep(1)
 
         elem = self.browser.find_element_by_tag_name("body")
         time.sleep(1)
 
         print('Scraping links')
 
+        elem.send_keys(Keys.DOWN)
         self.wait_and_click('//img[@class="rg_ic rg_i"]')
         time.sleep(1)
 

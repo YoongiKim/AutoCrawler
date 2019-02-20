@@ -48,9 +48,18 @@ class CollectLinks:
         return pos
 
     def wait_and_click(self, xpath):
-        w = WebDriverWait(self.browser, 10)
-        elem = w.until(EC.element_to_be_clickable((By.XPATH, xpath)))
-        webdriver.ActionChains(self.browser).move_to_element(elem).click(elem).perform()
+        #  Sometimes click fails unreasonably. So tries to click at all cost.
+        try:
+            w = WebDriverWait(self.browser, 15)
+            elem = w.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            elem.click()
+        except Exception as e:
+            print('Click time out - {}'.format(xpath))
+            print('Refreshing browser...')
+            self.browser.refresh()
+            time.sleep(2)
+            return self.wait_and_click(xpath)
+
         return elem
 
     def google(self, keyword, add_url=""):
@@ -155,7 +164,7 @@ class CollectLinks:
 
         print('Scraping links')
 
-        self.wait_and_click('//img[@class="rg_ic rg_i"]')
+        self.wait_and_click('//div[@data-ri="0"]')
         time.sleep(1)
 
         links = []

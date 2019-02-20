@@ -159,12 +159,6 @@ class AutoCrawler:
         collect = CollectLinks()  # initialize chrome driver
 
         try:
-            dirname = '{}/{}'.format(self.download_path, keyword)
-
-            if os.path.exists(os.path.join(os.getcwd(), dirname)) and self.skip:
-                print('Skipping already existing directory {}'.format(dirname))
-                return
-
             print('Collecting links... {} from {}'.format(keyword, site_name))
 
             if site_code == Sites.GOOGLE:
@@ -200,6 +194,11 @@ class AutoCrawler:
         tasks = []
 
         for keyword in keywords:
+            dir_name = '{}/{}'.format(self.download_path, keyword)
+            if os.path.exists(os.path.join(os.getcwd(), dir_name)) and self.skip:
+                print('Skipping already existing directory {}'.format(dir_name))
+                continue
+
             if self.do_google:
                 if self.full_resolution:
                     tasks.append([keyword, Sites.GOOGLE_FULL])

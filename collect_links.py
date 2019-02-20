@@ -155,7 +155,7 @@ class CollectLinks:
 
         print('Scraping links')
 
-        self.wait_and_click('//div[@class="rg_bx rg_di rg_el ivg-i"]')
+        self.wait_and_click('//img[@class="rg_ic rg_i"]')
         time.sleep(1)
 
         links = []

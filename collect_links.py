@@ -159,7 +159,7 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
-        count = 1
+        # count = 1
 
         last_scroll = 0
         scroll_patience = 0
@@ -173,8 +173,8 @@ class CollectLinks:
 
                     if src not in links and src is not None:
                         links.append(src)
-                        print('%d: %s'%(count, src))
-                        count += 1
+                        # print('%d: %s'%(count, src))
+                        # count += 1
 
             except Exception as e:
                 print('[Exception occurred while collecting links from google_full] {}'.format(e))
@@ -191,10 +191,12 @@ class CollectLinks:
 
             elem.send_keys(Keys.RIGHT)
 
+        links = set(links)
 
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google_full', keyword, len(links)))
         self.browser.close()
 
-        return set(links)
+        return links
 
     def naver_full(self, keyword, add_url=""):
         print('[Full Resolution Mode]')
@@ -211,7 +213,7 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
-        count = 1
+        # count = 1
 
         last_scroll = 0
         scroll_patience = 0
@@ -226,8 +228,8 @@ class CollectLinks:
 
                     if src not in links and src is not None:
                         links.append(src)
-                        print('%d: %s' % (count, src))
-                        count += 1
+                        # print('%d: %s' % (count, src))
+                        # count += 1
 
             except Exception as e:
                 print('[Exception occurred while collecting links from naver_full] {}'.format(e))
@@ -244,9 +246,12 @@ class CollectLinks:
 
             elem.send_keys(Keys.RIGHT)
 
+        links = set(links)
+
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver_full', keyword, len(links)))
         self.browser.close()
 
-        return set(links)
+        return links
 
 
 if __name__ == '__main__':

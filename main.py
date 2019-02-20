@@ -146,7 +146,7 @@ class AutoCrawler:
                 print('Downloading {} from {}: {} / {}'.format(keyword, site_name, index + 1, total))
                 response = requests.get(link, stream=True)
                 ext = self.get_extension_from_link(link)
-                self.save_image_to_file(response, '{}/{}/{}_{}.{}'.format(self.download_path, keyword, site_name, index, ext))
+                self.save_image_to_file(response, '{}/{}/{}_{}.{}'.format(self.download_path, keyword, site_name, str(index).zfill(4), ext))
                 del response
 
             except Exception as e:

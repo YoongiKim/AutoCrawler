@@ -168,7 +168,7 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
-        # count = 1
+        count = 1
 
         last_scroll = 0
         scroll_patience = 0
@@ -182,11 +182,12 @@ class CollectLinks:
 
                     if src not in links and src is not None:
                         links.append(src)
-                        # print('%d: %s'%(count, src))
-                        # count += 1
+                        print('%d: %s'%(count, src))
+                        count += 1
 
             except StaleElementReferenceException:
-                print('[Expected Exception - StaleElementReferenceException]')
+                # print('[Expected Exception - StaleElementReferenceException]')
+                pass
             except Exception as e:
                 print('[Exception occurred while collecting links from google_full] {}'.format(e))
 
@@ -223,7 +224,7 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
-        # count = 1
+        count = 1
 
         last_scroll = 0
         scroll_patience = 0
@@ -238,11 +239,12 @@ class CollectLinks:
 
                     if src not in links and src is not None:
                         links.append(src)
-                        # print('%d: %s' % (count, src))
-                        # count += 1
+                        print('%d: %s' % (count, src))
+                        count += 1
 
             except StaleElementReferenceException:
-                print('[Expected Exception - StaleElementReferenceException]')
+                # print('[Expected Exception - StaleElementReferenceException]')
+                pass
             except Exception as e:
                 print('[Exception occurred while collecting links from naver_full] {}'.format(e))
 

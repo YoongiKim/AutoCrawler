@@ -21,6 +21,7 @@ import shutil
 from multiprocessing import Pool
 import argparse
 from collect_links import CollectLinks
+import imghdr
 
 
 class Sites:
@@ -106,6 +107,13 @@ class AutoCrawler:
             return default
 
     @staticmethod
+    def validate_image(path):
+        ext = imghdr.what(path)
+        if ext == 'jpeg':
+            ext = 'jpg'
+        return ext  # returns None if not valid
+
+    @staticmethod
     def make_dir(dirname):
         current_path = os.getcwd()
         path = os.path.join(current_path, dirname)
@@ -130,10 +138,11 @@ class AutoCrawler:
 
         return keywords
 
-    def save_image_to_file(self, image, file_path):
+    @staticmethod
+    def save_object_to_file(object, file_path):
         try:
             with open('{}'.format(file_path), 'wb') as file:
-                shutil.copyfileobj(image.raw, file)
+                shutil.copyfileobj(object.raw, file)
         except Exception as e:
             print('Save failed - {}'.format(e))
 
@@ -146,8 +155,22 @@ class AutoCrawler:
                 print('Downloading {} from {}: {} / {}'.format(keyword, site_name, index + 1, total))
                 response = requests.get(link, stream=True)
                 ext = self.get_extension_from_link(link)
-                self.save_image_to_file(response, '{}/{}/{}_{}.{}'.format(self.download_path, keyword, site_name, str(index).zfill(4), ext))
+
+                no_ext_path = '{}/{}/{}_{}'.format(self.download_path, keyword, site_name, str(index).zfill(4))
+                path = no_ext_path + '.' + ext
+                self.save_object_to_file(response, path)
+
                 del response
+
+                ext2 = self.validate_image(path)
+                if ext2 is None:
+                    print('Unreadable file - {}'.format(link))
+                    os.remove(path)
+                else:
+                    if ext != ext2:
+                        path2 = no_ext_path + '.' + ext2
+                        os.rename(path, path2)
+                        print('Renamed extension {} -> {}'.format(ext, ext2))
 
             except Exception as e:
                 print('Download failed - ', e)

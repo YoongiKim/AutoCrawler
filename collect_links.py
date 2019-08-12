@@ -201,14 +201,15 @@ class CollectLinks:
 
         while True:
             try:
-                imgs = self.browser.find_elements(By.XPATH, '//div[@class="irc_c i8187 immersive-container irc-rcd"]//img[@class="irc_mi"]')
+                xpath = '//div[@class="irc_c i8187 immersive-container"]//img[@class="irc_mi"]'
+                imgs = self.browser.find_elements(By.XPATH, xpath)
 
                 for img in imgs:
                     src = img.get_attribute('src')
 
                     if src not in links and src is not None:
                         links.append(src)
-                        print('%d: %s'%(count, src))
+                        print('%d: %s' % (count, src))
                         count += 1
 
             except StaleElementReferenceException:
@@ -257,8 +258,8 @@ class CollectLinks:
 
         while True:
             try:
-                imgs = self.browser.find_elements(By.XPATH,
-                                                  '//div[@class="image_viewer_wrap _sauImageViewer"]//img[@class="_image_source"]')
+                xpath = '//div[@class="image_viewer_wrap _sauImageViewer"]//img[@class="_image_source"]'
+                imgs = self.browser.find_elements(By.XPATH, xpath)
 
                 for img in imgs:
                     src = img.get_attribute('src')

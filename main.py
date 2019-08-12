@@ -179,7 +179,12 @@ class AutoCrawler:
     def download_from_site(self, keyword, site_code):
         site_name = Sites.get_text(site_code)
         add_url = Sites.get_face_url(site_code) if self.face else ""
-        collect = CollectLinks()  # initialize chrome driver
+
+        try:
+            collect = CollectLinks()  # initialize chrome driver
+        except Exception as e:
+            print('Error occurred while initializing chromedriver - {}'.format(e))
+            return
 
         try:
             print('Collecting links... {} from {}'.format(keyword, site_name))

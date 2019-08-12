@@ -23,6 +23,7 @@ from selenium.common.exceptions import ElementNotVisibleException, StaleElementR
 import platform
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os.path as osp
 
 
 class CollectLinks:
@@ -39,9 +40,34 @@ class CollectLinks:
             print('Detected OS : Mac')
             executable = './chromedriver/chromedriver_mac'
         else:
-            assert False, 'Unknown OS Type'
+            raise OSError('Unknown OS Type')
+
+        if not osp.exists(executable):
+            raise FileNotFoundError('Chromedriver file should be placed at {}'.format(executable))
 
         self.browser = webdriver.Chrome(executable)
+
+        browser_version = 'Failed to detect version'
+        chromedriver_version = 'Failed to detect version'
+        major_version_different = False
+
+        if 'browserVersion' in self.browser.capabilities:
+            browser_version = str(self.browser.capabilities['browserVersion'])
+
+        if 'chrome' in self.browser.capabilities:
+            if 'chromedriverVersion' in self.browser.capabilities['chrome']:
+                chromedriver_version = str(self.browser.capabilities['chrome']['chromedriverVersion']).split(' ')[0]
+
+        if browser_version.split('.')[0] != chromedriver_version.split('.')[0]:
+            major_version_different = True
+
+        print('_________________________________')
+        print('Current web-browser version:\t{}'.format(browser_version))
+        print('Current chrome-driver version:\t{}'.format(chromedriver_version))
+        if major_version_different:
+            print('warning: Version different')
+            print('Download correct version at "http://chromedriver.chromium.org/downloads" and place in "./chromedriver"')
+        print('_________________________________')
 
     def get_scroll(self):
         pos = self.browser.execute_script("return window.pageYOffset;")

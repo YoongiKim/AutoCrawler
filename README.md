@@ -33,7 +33,7 @@ python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--fu
 
 --full false       Download full resolution image instead of thumbnails (slow)
 
---face flase       Face search mode
+--face false       Face search mode
 ```
 
 

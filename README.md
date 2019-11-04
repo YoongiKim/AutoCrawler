@@ -47,7 +47,7 @@ You can download full resolution image of JPG, GIF, PNG files by specifying --fu
 
 # Data Imbalance Detection
 
-Detects data imblance based on number of files.
+Detects data imbalance based on number of files.
 
 When crawling ends, the message show you what directory has under 50% of average files.
 

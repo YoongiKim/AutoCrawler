@@ -51,7 +51,7 @@ class Sites:
 
 class AutoCrawler:
     def __init__(self, skip_already_exist=True, n_threads=4, do_google=True, do_naver=True, download_path='download',
-                 full_resolution=False, face=False):
+                 full_resolution=False, face=False, number = 1000):
         """
         :param skip_already_exist: Skips keyword already downloaded before. This is needed when re-downloading.
         :param n_threads: Number of threads to download.
@@ -69,6 +69,7 @@ class AutoCrawler:
         self.download_path = download_path
         self.full_resolution = full_resolution
         self.face = face
+        self.number = number
 
         os.makedirs('./{}'.format(self.download_path), exist_ok=True)
 
@@ -302,6 +303,8 @@ if __name__ == '__main__':
     parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
     parser.add_argument('--full', type=str, default='false', help='Download full resolution image instead of thumbnails (slow)')
     parser.add_argument('--face', type=str, default='false', help='Face search mode')
+    parser.add_argument('--number', type=str, default= '1000', help='Face search mode')
+
     args = parser.parse_args()
 
     _skip = False if str(args.skip).lower() == 'false' else True
@@ -310,8 +313,9 @@ if __name__ == '__main__':
     _naver = False if str(args.naver).lower() == 'false' else True
     _full = False if str(args.full).lower() == 'false' else True
     _face = False if str(args.face).lower() == 'false' else True
+    _number = 1000 if str(args.number) == '1000' else int(args.number)
 
-    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}'.format(_skip, _threads, _google, _naver, _full, _face))
+    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}, number:{}'.format(_skip, _threads, _google, _naver, _full, _face , _number))
 
-    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads, do_google=_google, do_naver=_naver, full_resolution=_full, face=_face)
+    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads, do_google=_google, do_naver=_naver, full_resolution=_full, face=_face, number=_number)
     crawler.do_crawling()

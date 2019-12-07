@@ -212,7 +212,7 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
-        count = 1
+        count = 0
 
         last_scroll = 0
         scroll_patience = 0
@@ -229,6 +229,10 @@ class CollectLinks:
                         links.append(src)
                         print('%d: %s' % (count, src))
                         count += 1
+
+                        if number <= count :
+                            self.browser.close()
+                            return set(links)
 
             except StaleElementReferenceException:
                 # print('[Expected Exception - StaleElementReferenceException]')
@@ -269,7 +273,7 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
-        count = 1
+        count = 0
 
         last_scroll = 0
         scroll_patience = 0
@@ -286,6 +290,10 @@ class CollectLinks:
                         links.append(src)
                         print('%d: %s' % (count, src))
                         count += 1
+
+                        if count >= number :
+                            self.browser.close()
+                            return set(links)
 
             except StaleElementReferenceException:
                 # print('[Expected Exception - StaleElementReferenceException]')

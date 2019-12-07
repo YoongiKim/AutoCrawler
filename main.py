@@ -177,7 +177,7 @@ class AutoCrawler:
                 print('Download failed - ', e)
                 continue
 
-    def download_from_site(self, keyword, site_code):
+    def download_from_site(self, keyword, site_code, number):
         site_name = Sites.get_text(site_code)
         add_url = Sites.get_face_url(site_code) if self.face else ""
 
@@ -191,16 +191,16 @@ class AutoCrawler:
             print('Collecting links... {} from {}'.format(keyword, site_name))
 
             if site_code == Sites.GOOGLE:
-                links = collect.google(keyword, add_url)
+                links = collect.google(keyword, add_url, number)
 
             elif site_code == Sites.NAVER:
-                links = collect.naver(keyword, add_url)
+                links = collect.naver(keyword, add_url, number)
 
             elif site_code == Sites.GOOGLE_FULL:
-                links = collect.google_full(keyword, add_url)
+                links = collect.google_full(keyword, add_url, number)
 
             elif site_code == Sites.NAVER_FULL:
-                links = collect.naver_full(keyword, add_url)
+                links = collect.naver_full(keyword, add_url, number)
 
             else:
                 print('Invalid Site Code')
@@ -215,7 +215,7 @@ class AutoCrawler:
             print('Exception {}:{} - {}'.format(site_name, keyword, e))
 
     def download(self, args):
-        self.download_from_site(keyword=args[0], site_code=args[1])
+        self.download_from_site(keyword=args[0], site_code=args[1], number=args[2])
 
     def do_crawling(self):
         keywords = self.get_keywords()
@@ -230,15 +230,15 @@ class AutoCrawler:
 
             if self.do_google:
                 if self.full_resolution:
-                    tasks.append([keyword, Sites.GOOGLE_FULL])
+                    tasks.append([keyword, Sites.GOOGLE_FULL, self.number])
                 else:
-                    tasks.append([keyword, Sites.GOOGLE])
+                    tasks.append([keyword, Sites.GOOGLE, self.number])
 
             if self.do_naver:
                 if self.full_resolution:
-                    tasks.append([keyword, Sites.NAVER_FULL])
+                    tasks.append([keyword, Sites.NAVER_FULL, self.number])
                 else:
-                    tasks.append([keyword, Sites.NAVER])
+                    tasks.append([keyword, Sites.NAVER, self.number])
 
         pool = Pool(self.n_threads)
         pool.map_async(self.download, tasks)

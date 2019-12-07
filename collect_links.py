@@ -88,7 +88,7 @@ class CollectLinks:
 
         return elem
 
-    def google(self, keyword, add_url=""):
+    def google(self, keyword, add_url="", number = 1000):
         self.browser.get("https://www.google.com/search?q={}&source=lnms&tbm=isch{}".format(keyword, add_url))
 
         time.sleep(1)
@@ -102,12 +102,15 @@ class CollectLinks:
             time.sleep(0.2)
 
         try:
-            # btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
-            self.wait_and_click('//input[@id="smb"]')
 
-            for i in range(60):
-                elem.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.2)
+            photo_count = len(self.browser.find_elements(By.XPATH, '//div[@class="isv-r PNCib MSM1fd BUooTd"]'))
+            if photo_count < number :
+                # btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
+                self.wait_and_click('//input[@id="smb"]')
+
+                for i in range(60):
+                    elem.send_keys(Keys.PAGE_DOWN)
+                    time.sleep(0.2)
 
         except ElementNotVisibleException:
             pass
@@ -124,8 +127,12 @@ class CollectLinks:
 
                 for img in imgs:
                     src = img.get_attribute("src")
-                    if src[0] != 'd':
+                    if src[0] != 'd' and src not in links:
                         links.append(src)
+
+                        if len(links) >= number :
+                            self.browser.close()
+                            return set(links)
 
             except Exception as e:
                 print('[Exception occurred while collecting links from google] {}'.format(e))
@@ -135,7 +142,7 @@ class CollectLinks:
 
         return set(links)
 
-    def naver(self, keyword, add_url=""):
+    def naver(self, keyword, add_url="", number = 1000):
         self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
 
         time.sleep(1)
@@ -149,11 +156,16 @@ class CollectLinks:
             time.sleep(0.2)
 
         try:
-            self.wait_and_click('//a[@class="btn_more _more"]')
 
-            for i in range(60):
-                elem.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.2)
+            photo_count = len(self.browser.find_elements(By.XPATH, '//div[@class="img_area _item"]'))
+
+            if photo_count < number :
+
+                self.wait_and_click('//a[@class="btn_more _more"]')
+
+                for i in range(60):
+                    elem.send_keys(Keys.PAGE_DOWN)
+                    time.sleep(0.2)
 
         except ElementNotVisibleException:
             pass
@@ -170,8 +182,14 @@ class CollectLinks:
 
                 for img in imgs:
                     src = img.get_attribute("src")
-                    if src[0] != 'd':
+                    if src[0] != 'd' and src not in links:
                         links.append(src)
+
+                        if len(links) >= number :
+                            self.browser.close()
+                            return set(links)
+
+
             except Exception as e:
                 print('[Exception occurred while collecting links from naver] {}'.format(e))
 
@@ -180,7 +198,7 @@ class CollectLinks:
 
         return set(links)
 
-    def google_full(self, keyword, add_url=""):
+    def google_full(self, keyword, add_url="", number = 1000):
         print('[Full Resolution Mode]')
 
         self.browser.get("https://www.google.co.kr/search?q={}&tbm=isch{}".format(keyword, add_url))
@@ -237,7 +255,7 @@ class CollectLinks:
 
         return links
 
-    def naver_full(self, keyword, add_url=""):
+    def naver_full(self, keyword, add_url="", number = 1000):
         print('[Full Resolution Mode]')
 
         self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))

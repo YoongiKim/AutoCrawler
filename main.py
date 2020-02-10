@@ -22,6 +22,7 @@ from multiprocessing import Pool
 import argparse
 from collect_links import CollectLinks
 import imghdr
+import base64
 
 
 class Sites:
@@ -139,12 +140,21 @@ class AutoCrawler:
         return keywords
 
     @staticmethod
-    def save_object_to_file(object, file_path):
+    def save_object_to_file(object, file_path, is_base64=False):
         try:
             with open('{}'.format(file_path), 'wb') as file:
-                shutil.copyfileobj(object.raw, file)
+                if is_base64:
+                    file.write(object)
+                else:
+                    shutil.copyfileobj(object.raw, file)
         except Exception as e:
             print('Save failed - {}'.format(e))
+
+    @staticmethod
+    def base64_to_object(src):
+        header, encoded = str(src).split(',', 1)
+        data = base64.decodebytes(bytes(encoded, encoding='utf-8'))
+        return data
 
     def download_images(self, keyword, links, site_name):
         self.make_dir('{}/{}'.format(self.download_path, keyword))
@@ -153,12 +163,23 @@ class AutoCrawler:
         for index, link in enumerate(links):
             try:
                 print('Downloading {} from {}: {} / {}'.format(keyword, site_name, index + 1, total))
-                response = requests.get(link, stream=True)
-                ext = self.get_extension_from_link(link)
+
+                if str(link).startswith('data:image/jpeg;base64'):
+                    response = self.base64_to_object(link)
+                    ext = 'jpg'
+                    is_base64 = True
+                elif str(link).startswith('data:image/png;base64'):
+                    response = self.base64_to_object(link)
+                    ext = 'png'
+                    is_base64 = True
+                else:
+                    response = requests.get(link, stream=True)
+                    ext = self.get_extension_from_link(link)
+                    is_base64 = False
 
                 no_ext_path = '{}/{}/{}_{}'.format(self.download_path, keyword, site_name, str(index).zfill(4))
                 path = no_ext_path + '.' + ext
-                self.save_object_to_file(response, path)
+                self.save_object_to_file(response, path, is_base64=is_base64)
 
                 del response
 

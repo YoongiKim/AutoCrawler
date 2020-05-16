@@ -70,6 +70,6 @@ Xvfb :99 -ac & DISPLAY=:99 python3 main.py
 
 You can make your own crawler by changing collect_links.py
 
-# If doesn't work
+# Issues
 
 As google site consistently changes, please make issues if it doesn't work.

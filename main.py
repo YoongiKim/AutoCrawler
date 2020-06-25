@@ -52,7 +52,7 @@ class Sites:
 
 class AutoCrawler:
     def __init__(self, skip_already_exist=True, n_threads=4, do_google=True, do_naver=True, download_path='download',
-                 full_resolution=False, face=False):
+                 full_resolution=False, face=False, no_gui=False):
         """
         :param skip_already_exist: Skips keyword already downloaded before. This is needed when re-downloading.
         :param n_threads: Number of threads to download.
@@ -61,6 +61,7 @@ class AutoCrawler:
         :param download_path: Download folder path
         :param full_resolution: Download full resolution image instead of thumbnails (slow)
         :param face: Face search mode
+        :param no_gui: No GUI mode. Acceleration for full_resolution mode.
         """
 
         self.skip = skip_already_exist
@@ -70,6 +71,7 @@ class AutoCrawler:
         self.download_path = download_path
         self.full_resolution = full_resolution
         self.face = face
+        self.no_gui = no_gui
 
         os.makedirs('./{}'.format(self.download_path), exist_ok=True)
 
@@ -202,7 +204,7 @@ class AutoCrawler:
         add_url = Sites.get_face_url(site_code) if self.face else ""
 
         try:
-            collect = CollectLinks()  # initialize chrome driver
+            collect = CollectLinks(no_gui=self.no_gui)  # initialize chrome driver
         except Exception as e:
             print('Error occurred while initializing chromedriver - {}'.format(e))
             return
@@ -323,6 +325,9 @@ if __name__ == '__main__':
     parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
     parser.add_argument('--full', type=str, default='false', help='Download full resolution image instead of thumbnails (slow)')
     parser.add_argument('--face', type=str, default='false', help='Face search mode')
+    parser.add_argument('--no_gui', type=str, default='auto', help='No GUI mode. Acceleration for full_resolution mode. '
+                                                                   'But unstable on thumbnail mode. '
+                                                                    'Default: "auto" - false if full=false, true if full=true')
     args = parser.parse_args()
 
     _skip = False if str(args.skip).lower() == 'false' else True
@@ -332,7 +337,18 @@ if __name__ == '__main__':
     _full = False if str(args.full).lower() == 'false' else True
     _face = False if str(args.face).lower() == 'false' else True
 
-    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}'.format(_skip, _threads, _google, _naver, _full, _face))
+    no_gui_input = str(args.no_gui).lower()
+    if no_gui_input == 'auto':
+        _no_gui = _full
+    elif no_gui_input == 'true':
+        _no_gui = True
+    else:
+        _no_gui = False
 
-    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads, do_google=_google, do_naver=_naver, full_resolution=_full, face=_face)
+    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}, no_gui:{}'
+          .format(_skip, _threads, _google, _naver, _full, _face, _no_gui))
+
+    crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads,
+                          do_google=_google, do_naver=_naver, full_resolution=_full,
+                          face=_face, no_gui=_no_gui)
     crawler.do_crawling()

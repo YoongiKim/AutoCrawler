@@ -28,7 +28,7 @@ import os.path as osp
 
 
 class CollectLinks:
-    def __init__(self):
+    def __init__(self, no_gui=False):
         executable = ''
 
         if platform.system() == 'Windows':
@@ -47,9 +47,10 @@ class CollectLinks:
             raise FileNotFoundError('Chromedriver file should be placed at {}'.format(executable))
 
         chrome_options = Options()
-        chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
+        if no_gui:
+            chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(executable, chrome_options=chrome_options)
 
         browser_version = 'Failed to detect version'

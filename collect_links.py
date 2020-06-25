@@ -23,6 +23,7 @@ from selenium.common.exceptions import ElementNotVisibleException, StaleElementR
 import platform
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import os.path as osp
 
 
@@ -45,7 +46,11 @@ class CollectLinks:
         if not osp.exists(executable):
             raise FileNotFoundError('Chromedriver file should be placed at {}'.format(executable))
 
-        self.browser = webdriver.Chrome(executable)
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        self.browser = webdriver.Chrome(executable, chrome_options=chrome_options)
 
         browser_version = 'Failed to detect version'
         chromedriver_version = 'Failed to detect version'

@@ -157,7 +157,7 @@ class AutoCrawler:
         return data
 
     def download_images(self, keyword, links, site_name):
-        self.make_dir('{}/{}'.format(self.download_path, keyword))
+        self.make_dir('{}/{}'.format(self.download_path, keyword.replace('"', '')))
         total = len(links)
 
         for index, link in enumerate(links):
@@ -177,7 +177,7 @@ class AutoCrawler:
                     ext = self.get_extension_from_link(link)
                     is_base64 = False
 
-                no_ext_path = '{}/{}/{}_{}'.format(self.download_path, keyword, site_name, str(index).zfill(4))
+                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name, str(index).zfill(4))
                 path = no_ext_path + '.' + ext
                 self.save_object_to_file(response, path, is_base64=is_base64)
 

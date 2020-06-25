@@ -19,7 +19,7 @@ Google, Naver multiprocess image crawler (High Quality & Speed & Customizable)
 # Arguments
 usage:
 ```
-python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false]
+python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false] [--no_gui auto]
 ```
 
 ```
@@ -34,6 +34,10 @@ python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--fu
 --full false       Download full resolution image instead of thumbnails (slow)
 
 --face false       Face search mode
+
+--no_gui auto      No GUI mode. (headless mode) Acceleration for full_resolution mode, but unstable on thumbnail mode.
+                   Default: "auto" - false if full=false, true if full=true
+                   (can be used for docker linux system)
 ```
 
 

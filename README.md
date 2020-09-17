@@ -38,6 +38,7 @@ python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--fu
 --no_gui auto      No GUI mode. (headless mode) Acceleration for full_resolution mode, but unstable on thumbnail mode.
                    Default: "auto" - false if full=false, true if full=true
                    (can be used for docker linux system)
+--limit 0          Maximum count of images to download per site. (0: infinite)
 ```
 
 

@@ -170,31 +170,17 @@ class CollectLinks:
             elem.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.2)
 
-        try:
-            self.wait_and_click('//a[@class="btn_more _more"]')
-
-            for i in range(60):
-                elem.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.2)
-
-        except ElementNotVisibleException:
-            pass
-
-        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="photo_grid _box"]')
+        imgs = self.browser.find_elements(By.XPATH, '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
 
         print('Scraping links')
 
         links = []
 
-        for box in photo_grid_boxes:
+        for img in imgs:
             try:
-                imgs = box.find_elements(By.CLASS_NAME, '_img')
-
-                for img in imgs:
-                    # self.highlight(img)
-                    src = img.get_attribute("src")
-                    if src[0] != 'd':
-                        links.append(src)
+                src = img.get_attribute("src")
+                if src[0] != 'd':
+                    links.append(src)
             except Exception as e:
                 print('[Exception occurred while collecting links from naver] {}'.format(e))
 
@@ -283,7 +269,7 @@ class CollectLinks:
 
         print('Scraping links')
 
-        self.wait_and_click('//div[@class="img_area _item"]')
+        self.wait_and_click('//div[@class="photo_bx api_ani_send _photoBox"]')
         time.sleep(1)
 
         links = []
@@ -294,7 +280,7 @@ class CollectLinks:
 
         while True:
             try:
-                xpath = '//div[@class="image_viewer_wrap _sauImageViewer"]//img[@class="_image_source"]'
+                xpath = '//div[@class="image _imageBox"]/img[@class="_image"]'
                 imgs = self.browser.find_elements(By.XPATH, xpath)
 
                 for img in imgs:
@@ -319,10 +305,11 @@ class CollectLinks:
                 scroll_patience = 0
                 last_scroll = scroll
 
-            if scroll_patience >= 30:
+            if scroll_patience >= 100:
                 break
 
             elem.send_keys(Keys.RIGHT)
+            elem.send_keys(Keys.PAGE_DOWN)
 
         links = self.remove_duplicates(links)
 

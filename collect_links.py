@@ -153,7 +153,7 @@ class CollectLinks:
         links = self.remove_duplicates(links)
 
         print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google', keyword, len(links)))
-        self.browser.close()
+        self.browser.quit()
 
         return links
 
@@ -187,7 +187,7 @@ class CollectLinks:
         links = self.remove_duplicates(links)
 
         print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
-        self.browser.close()
+        self.browser.quit()
 
         return links
 
@@ -255,7 +255,7 @@ class CollectLinks:
         links = self.remove_duplicates(links)
 
         print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('google_full', keyword, len(links)))
-        self.browser.close()
+        self.browser.quit()
 
         return links
 
@@ -314,7 +314,7 @@ class CollectLinks:
         links = self.remove_duplicates(links)
 
         print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver_full', keyword, len(links)))
-        self.browser.close()
+        self.browser.quit()
 
         return links
 

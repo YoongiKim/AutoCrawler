@@ -3,3 +3,4 @@ chardet
 idna
 requests
 selenium
+webdriver-manager

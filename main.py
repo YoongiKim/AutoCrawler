@@ -14,7 +14,6 @@ Copyright 2018 YoongiKim
    limitations under the License.
 """
 
-
 import os
 import requests
 import shutil
@@ -23,6 +22,7 @@ import argparse
 from collect_links import CollectLinks
 import imghdr
 import base64
+from pathlib import Path
 
 
 class Sites:
@@ -188,7 +188,8 @@ class AutoCrawler:
                     ext = self.get_extension_from_link(link)
                     is_base64 = False
 
-                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name, str(index).zfill(4))
+                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name,
+                                                   str(index).zfill(4))
                 path = no_ext_path + '.' + ext
                 self.save_object_to_file(response, path, is_base64=is_base64)
 
@@ -241,6 +242,7 @@ class AutoCrawler:
 
             print('Downloading images from collected links... {} from {}'.format(keyword, site_name))
             self.download_images(keyword, links, site_name, max_count=self.limit)
+            Path('{}/{}/{}_done'.format(self.download_path, keyword.replace('"', ''), site_name)).touch()
 
             print('Done {} : {}'.format(site_name, keyword))
 
@@ -257,17 +259,19 @@ class AutoCrawler:
 
         for keyword in keywords:
             dir_name = '{}/{}'.format(self.download_path, keyword)
-            if os.path.exists(os.path.join(os.getcwd(), dir_name)) and self.skip:
-                print('Skipping already existing directory {}'.format(dir_name))
+            google_done = os.path.exists(os.path.join(os.getcwd(), dir_name, 'google_done'))
+            naver_done = os.path.exists(os.path.join(os.getcwd(), dir_name, 'naver_done'))
+            if google_done and naver_done and self.skip:
+                print('Skipping done task {}'.format(dir_name))
                 continue
 
-            if self.do_google:
+            if self.do_google and not google_done:
                 if self.full_resolution:
                     tasks.append([keyword, Sites.GOOGLE_FULL])
                 else:
                     tasks.append([keyword, Sites.GOOGLE])
 
-            if self.do_naver:
+            if self.do_naver and not naver_done:
                 if self.full_resolution:
                     tasks.append([keyword, Sites.NAVER_FULL])
                 else:
@@ -334,12 +338,15 @@ if __name__ == '__main__':
     parser.add_argument('--threads', type=int, default=4, help='Number of threads to download.')
     parser.add_argument('--google', type=str, default='true', help='Download from google.com (boolean)')
     parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
-    parser.add_argument('--full', type=str, default='false', help='Download full resolution image instead of thumbnails (slow)')
+    parser.add_argument('--full', type=str, default='false',
+                        help='Download full resolution image instead of thumbnails (slow)')
     parser.add_argument('--face', type=str, default='false', help='Face search mode')
-    parser.add_argument('--no_gui', type=str, default='auto', help='No GUI mode. Acceleration for full_resolution mode. '
-                                                                   'But unstable on thumbnail mode. '
-                                                                    'Default: "auto" - false if full=false, true if full=true')
-    parser.add_argument('--limit', type=int, default=0, help='Maximum count of images to download per site. (0: infinite)')
+    parser.add_argument('--no_gui', type=str, default='auto',
+                        help='No GUI mode. Acceleration for full_resolution mode. '
+                             'But unstable on thumbnail mode. '
+                             'Default: "auto" - false if full=false, true if full=true')
+    parser.add_argument('--limit', type=int, default=0,
+                        help='Maximum count of images to download per site. (0: infinite)')
     args = parser.parse_args()
 
     _skip = False if str(args.skip).lower() == 'false' else True

@@ -40,6 +40,8 @@ python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--fu
                    (can be used for docker linux system)
                    
 --limit 0          Maximum count of images to download per site. (0: infinite)
+--proxy-list ''    The comma separated proxy list like: "socks://127.0.0.1:1080,http://127.0.0.1:1081".
+                   Every thread will randomly choose one from the list.
 ```
 
 

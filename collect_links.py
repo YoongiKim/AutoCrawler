@@ -14,7 +14,6 @@ Copyright 2018 YoongiKim
    limitations under the License.
 """
 
-
 import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -29,7 +28,7 @@ import os.path as osp
 
 
 class CollectLinks:
-    def __init__(self, no_gui=False):
+    def __init__(self, no_gui=False, proxy=None):
         executable = ''
 
         if platform.system() == 'Windows':
@@ -52,6 +51,8 @@ class CollectLinks:
         chrome_options.add_argument('--disable-dev-shm-usage')
         if no_gui:
             chrome_options.add_argument('--headless')
+        if proxy:
+            chrome_options.add_argument("--proxy-server={}".format(proxy))
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
 
         browser_version = 'Failed to detect version'
@@ -73,7 +74,8 @@ class CollectLinks:
         print('Current chrome-driver version:\t{}'.format(chromedriver_version))
         if major_version_different:
             print('warning: Version different')
-            print('Download correct version at "http://chromedriver.chromium.org/downloads" and place in "./chromedriver"')
+            print(
+                'Download correct version at "http://chromedriver.chromium.org/downloads" and place in "./chromedriver"')
         print('_________________________________')
 
     def get_scroll(self):
@@ -97,7 +99,8 @@ class CollectLinks:
         return elem
 
     def highlight(self, element):
-        self.browser.execute_script("arguments[0].setAttribute('style', arguments[1]);", element, "background: yellow; border: 2px solid red;")
+        self.browser.execute_script("arguments[0].setAttribute('style', arguments[1]);", element,
+                                    "background: yellow; border: 2px solid red;")
 
     @staticmethod
     def remove_duplicates(_list):
@@ -159,7 +162,8 @@ class CollectLinks:
         return links
 
     def naver(self, keyword, add_url=""):
-        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
+        self.browser.get(
+            "https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
 
         time.sleep(1)
 
@@ -171,7 +175,8 @@ class CollectLinks:
             elem.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.2)
 
-        imgs = self.browser.find_elements(By.XPATH, '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
+        imgs = self.browser.find_elements(By.XPATH,
+                                          '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
 
         print('Scraping links')
 
@@ -263,7 +268,8 @@ class CollectLinks:
     def naver_full(self, keyword, add_url=""):
         print('[Full Resolution Mode]')
 
-        self.browser.get("https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
+        self.browser.get(
+            "https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
         time.sleep(1)
 
         elem = self.browser.find_element_by_tag_name("body")

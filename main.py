@@ -14,7 +14,6 @@ Copyright 2018 YoongiKim
    limitations under the License.
 """
 
-
 import os
 import requests
 import shutil
@@ -23,6 +22,8 @@ import argparse
 from collect_links import CollectLinks
 import imghdr
 import base64
+from pathlib import Path
+import random
 
 
 class Sites:
@@ -52,7 +53,7 @@ class Sites:
 
 class AutoCrawler:
     def __init__(self, skip_already_exist=True, n_threads=4, do_google=True, do_naver=True, download_path='download',
-                 full_resolution=False, face=False, no_gui=False, limit=0):
+                 full_resolution=False, face=False, no_gui=False, limit=0, proxy_list=None):
         """
         :param skip_already_exist: Skips keyword already downloaded before. This is needed when re-downloading.
         :param n_threads: Number of threads to download.
@@ -63,6 +64,7 @@ class AutoCrawler:
         :param face: Face search mode
         :param no_gui: No GUI mode. Acceleration for full_resolution mode.
         :param limit: Maximum count of images to download. (0: infinite)
+        :param proxy_list: The proxy list. Every thread will randomly choose one from the list.
         """
 
         self.skip = skip_already_exist
@@ -74,6 +76,7 @@ class AutoCrawler:
         self.face = face
         self.no_gui = no_gui
         self.limit = limit
+        self.proxy_list = proxy_list if proxy_list and len(proxy_list) > 0 else None
 
         os.makedirs('./{}'.format(self.download_path), exist_ok=True)
 
@@ -188,7 +191,8 @@ class AutoCrawler:
                     ext = self.get_extension_from_link(link)
                     is_base64 = False
 
-                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name, str(index).zfill(4))
+                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name,
+                                                   str(index).zfill(4))
                 path = no_ext_path + '.' + ext
                 self.save_object_to_file(response, path, is_base64=is_base64)
 
@@ -215,7 +219,10 @@ class AutoCrawler:
         add_url = Sites.get_face_url(site_code) if self.face else ""
 
         try:
-            collect = CollectLinks(no_gui=self.no_gui)  # initialize chrome driver
+            proxy = None
+            if self.proxy_list:
+                proxy = random.choice(self.proxy_list)
+            collect = CollectLinks(no_gui=self.no_gui, proxy=proxy)  # initialize chrome driver
         except Exception as e:
             print('Error occurred while initializing chromedriver - {}'.format(e))
             return
@@ -241,6 +248,7 @@ class AutoCrawler:
 
             print('Downloading images from collected links... {} from {}'.format(keyword, site_name))
             self.download_images(keyword, links, site_name, max_count=self.limit)
+            Path('{}/{}/{}_done'.format(self.download_path, keyword.replace('"', ''), site_name)).touch()
 
             print('Done {} : {}'.format(site_name, keyword))
 
@@ -257,17 +265,19 @@ class AutoCrawler:
 
         for keyword in keywords:
             dir_name = '{}/{}'.format(self.download_path, keyword)
-            if os.path.exists(os.path.join(os.getcwd(), dir_name)) and self.skip:
-                print('Skipping already existing directory {}'.format(dir_name))
+            google_done = os.path.exists(os.path.join(os.getcwd(), dir_name, 'google_done'))
+            naver_done = os.path.exists(os.path.join(os.getcwd(), dir_name, 'naver_done'))
+            if google_done and naver_done and self.skip:
+                print('Skipping done task {}'.format(dir_name))
                 continue
 
-            if self.do_google:
+            if self.do_google and not google_done:
                 if self.full_resolution:
                     tasks.append([keyword, Sites.GOOGLE_FULL])
                 else:
                     tasks.append([keyword, Sites.GOOGLE])
 
-            if self.do_naver:
+            if self.do_naver and not naver_done:
                 if self.full_resolution:
                     tasks.append([keyword, Sites.NAVER_FULL])
                 else:
@@ -334,12 +344,18 @@ if __name__ == '__main__':
     parser.add_argument('--threads', type=int, default=4, help='Number of threads to download.')
     parser.add_argument('--google', type=str, default='true', help='Download from google.com (boolean)')
     parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
-    parser.add_argument('--full', type=str, default='false', help='Download full resolution image instead of thumbnails (slow)')
+    parser.add_argument('--full', type=str, default='false',
+                        help='Download full resolution image instead of thumbnails (slow)')
     parser.add_argument('--face', type=str, default='false', help='Face search mode')
-    parser.add_argument('--no_gui', type=str, default='auto', help='No GUI mode. Acceleration for full_resolution mode. '
-                                                                   'But unstable on thumbnail mode. '
-                                                                    'Default: "auto" - false if full=false, true if full=true')
-    parser.add_argument('--limit', type=int, default=0, help='Maximum count of images to download per site. (0: infinite)')
+    parser.add_argument('--no_gui', type=str, default='auto',
+                        help='No GUI mode. Acceleration for full_resolution mode. '
+                             'But unstable on thumbnail mode. '
+                             'Default: "auto" - false if full=false, true if full=true')
+    parser.add_argument('--limit', type=int, default=0,
+                        help='Maximum count of images to download per site. (0: infinite)')
+    parser.add_argument('--proxy-list', type=str, default='',
+                        help='The comma separated proxy list like: "socks://127.0.0.1:1080,http://127.0.0.1:1081". '
+                             'Every thread will randomly choose one from the list.')
     args = parser.parse_args()
 
     _skip = False if str(args.skip).lower() == 'false' else True
@@ -349,6 +365,7 @@ if __name__ == '__main__':
     _full = False if str(args.full).lower() == 'false' else True
     _face = False if str(args.face).lower() == 'false' else True
     _limit = int(args.limit)
+    _proxy_list = args.proxy_list.split(',')
 
     no_gui_input = str(args.no_gui).lower()
     if no_gui_input == 'auto':
@@ -358,10 +375,11 @@ if __name__ == '__main__':
     else:
         _no_gui = False
 
-    print('Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}, no_gui:{}, limit:{}'
-          .format(_skip, _threads, _google, _naver, _full, _face, _no_gui, _limit))
+    print(
+        'Options - skip:{}, threads:{}, google:{}, naver:{}, full_resolution:{}, face:{}, no_gui:{}, limit:{}, _proxy_list:{}'
+            .format(_skip, _threads, _google, _naver, _full, _face, _no_gui, _limit, _proxy_list))
 
     crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads,
                           do_google=_google, do_naver=_naver, full_resolution=_full,
-                          face=_face, no_gui=_no_gui, limit=_limit)
+                          face=_face, no_gui=_no_gui, limit=_limit, proxy_list=_proxy_list)
     crawler.do_crawling()

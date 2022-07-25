@@ -113,7 +113,7 @@ class CollectLinks:
 
         print('Scrolling down')
 
-        elem = self.browser.find_element_by_tag_name("body")
+        elem = self.browser.find_element(By.TAG_NAME, "body")
 
         for i in range(60):
             elem.send_keys(Keys.PAGE_DOWN)
@@ -169,7 +169,7 @@ class CollectLinks:
 
         print('Scrolling down')
 
-        elem = self.browser.find_element_by_tag_name("body")
+        elem = self.browser.find_element(By.TAG_NAME, "body")
 
         for i in range(60):
             elem.send_keys(Keys.PAGE_DOWN)
@@ -203,7 +203,7 @@ class CollectLinks:
         self.browser.get("https://www.google.com/search?q={}&tbm=isch{}".format(keyword, add_url))
         time.sleep(1)
 
-        elem = self.browser.find_element_by_tag_name("body")
+        elem = self.browser.find_element(By.TAG_NAME, "body")
 
         print('Scraping links')
 
@@ -272,7 +272,7 @@ class CollectLinks:
             "https://search.naver.com/search.naver?where=image&sm=tab_jum&query={}{}".format(keyword, add_url))
         time.sleep(1)
 
-        elem = self.browser.find_element_by_tag_name("body")
+        elem = self.browser.find_element(By.TAG_NAME, "body")
 
         print('Scraping links')
 

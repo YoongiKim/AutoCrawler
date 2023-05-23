@@ -19,7 +19,7 @@ Google, Naver multiprocess image crawler (High Quality & Speed & Customizable)
 # Arguments
 usage:
 ```
-python3 main.py [--skip true] [--threads 4] [--google true] [--transparent false] [--naver true] [--full false] [--face false] [--no_gui auto] [--limit 0]
+python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false] [--no_gui auto] [--limit 0]
 ```
 
 ```

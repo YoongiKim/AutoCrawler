@@ -212,42 +212,25 @@ class CollectLinks:
         time.sleep(1)
 
         links = []
+        limit = 10000 if limit == 0 else limit
         count = 1
-
         last_scroll = 0
         scroll_patience = 0
-
-        NUM_MAX_RETRY = 30
         NUM_MAX_SCROLL_PATIENCE = 100
-        for _ in range(limit):
+
+        while len(links) < limit:
             try:
-                xpath = '//div[@id="islsp"]//div[@class="v4dQwb"]'
-                div_box = self.browser.find_element(By.XPATH, xpath)
-                self.highlight(div_box)
+                xpath = '//div[@class="n4hgof"]//img[@class="r48jcc pT0Scc iPVvYb"]'
+                imgs = elem.find_elements(By.XPATH, xpath)
 
-                for _ in range(NUM_MAX_RETRY):
-                    try:
-                        xpath = '//img[@class="n3VNCb pT0Scc KAlRDb"]'
-                        img = div_box.find_element(By.XPATH, xpath)
-                        self.highlight(img)
-                        break
-                    except:
-                        time.sleep(0.1)
-                        pass
+                for img in imgs:
+                    self.highlight(img)
+                    src = img.get_attribute('src')
 
-                xpath = '//div[@class="k7O2sd"]'
-                loading_bar = div_box.find_element(By.XPATH, xpath)
-
-                # Wait for image to load. If not it will display base64 code.
-                while str(loading_bar.get_attribute('style')) != 'display: none;':
-                    time.sleep(0.1)
-
-                src = img.get_attribute('src')
-
-                if src is not None:
-                    links.append(src)
-                    print('%d: %s' % (count, src))
-                    count += 1
+                    if src is not None and src not in links:
+                        links.append(src)
+                        print('%d: %s' % (count, src))
+                        count += 1
 
             except KeyboardInterrupt:
                 break
@@ -266,8 +249,7 @@ class CollectLinks:
                 last_scroll = scroll
 
             if scroll_patience >= NUM_MAX_SCROLL_PATIENCE:
-                elem.send_keys(Keys.RIGHT)
-                continue
+                break
 
             elem.send_keys(Keys.RIGHT)
 

@@ -1,3 +1,17 @@
+# Changes on this Fork
+updated: 2023.03.02 / ChromeDriver 110.0.5481.178
+
+- Fixed bug on `google` & `google_full`
+- Add `transparents` arguments that filters transparent images only. (for google)
+- Fixed a bug that `limit` does not work on `google_full`
+- Fixed a bug that multiprocess threads did not exit when `Ctrl+C` is pressed
+
+### Best usage of this Fork
+```
+python3 main.py --google true --transparent true --naver false --full true #[--no_gui false] [--limit 100]
+```
+And now whenever you can stop program by pressing `Ctrl+C`! 
+
 # AutoCrawler
 Google, Naver multiprocess image crawler (High Quality & Speed & Customizable)
 
@@ -19,7 +33,7 @@ Google, Naver multiprocess image crawler (High Quality & Speed & Customizable)
 # Arguments
 usage:
 ```
-python3 main.py [--skip true] [--threads 4] [--google true] [--naver true] [--full false] [--face false] [--no_gui auto] [--limit 0]
+python3 main.py [--skip true] [--threads 4] [--google true] [--transparent false] [--naver true] [--full false] [--face false] [--no_gui auto] [--limit 0]
 ```
 
 ```

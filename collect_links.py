@@ -132,13 +132,15 @@ class CollectLinks:
         except ElementNotVisibleException:
             pass
 
-        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="bRMDJf islir"]')
+        # photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="bRMDJf islir"]')
+        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class=" bRMDJf islir"]')
 
         print('Scraping links')
 
         links = []
 
-        for box in photo_grid_boxes:
+        for idx, box in enumerate(photo_grid_boxes):
+            # print('Scraping', idx)
             try:
                 imgs = box.find_elements(By.TAG_NAME, 'img')
 
@@ -197,7 +199,7 @@ class CollectLinks:
 
         return links
 
-    def google_full(self, keyword, add_url=""):
+    def google_full(self, keyword, add_url="", limit=100):
         print('[Full Resolution Mode]')
 
         self.browser.get("https://www.google.com/search?q={}&tbm=isch{}".format(keyword, add_url))
@@ -216,15 +218,24 @@ class CollectLinks:
         last_scroll = 0
         scroll_patience = 0
 
-        while True:
+        NUM_MAX_RETRY = 30
+        NUM_MAX_SCROLL_PATIENCE = 100
+        # while True:
+        for _ in range(limit):
             try:
                 xpath = '//div[@id="islsp"]//div[@class="v4dQwb"]'
                 div_box = self.browser.find_element(By.XPATH, xpath)
                 self.highlight(div_box)
 
-                xpath = '//img[@class="n3VNCb"]'
-                img = div_box.find_element(By.XPATH, xpath)
-                self.highlight(img)
+                for _ in range(NUM_MAX_RETRY):
+                    try:
+                        xpath = '//img[@class="n3VNCb pT0Scc KAlRDb"]'
+                        img = div_box.find_element(By.XPATH, xpath)
+                        self.highlight(img)
+                        break
+                    except:
+                        time.sleep(0.1)
+                        pass
 
                 xpath = '//div[@class="k7O2sd"]'
                 loading_bar = div_box.find_element(By.XPATH, xpath)
@@ -240,6 +251,9 @@ class CollectLinks:
                     print('%d: %s' % (count, src))
                     count += 1
 
+            except KeyboardInterrupt:
+                break
+                
             except StaleElementReferenceException:
                 # print('[Expected Exception - StaleElementReferenceException]')
                 pass
@@ -253,8 +267,9 @@ class CollectLinks:
                 scroll_patience = 0
                 last_scroll = scroll
 
-            if scroll_patience >= 30:
-                break
+            if scroll_patience >= NUM_MAX_SCROLL_PATIENCE:
+                elem.send_keys(Keys.RIGHT)
+                continue
 
             elem.send_keys(Keys.RIGHT)
 

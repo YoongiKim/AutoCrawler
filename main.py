@@ -18,6 +18,7 @@ import os
 import requests
 import shutil
 from multiprocessing import Pool
+import signal
 import argparse
 from collect_links import CollectLinks
 import imghdr
@@ -187,7 +188,7 @@ class AutoCrawler:
                     ext = 'png'
                     is_base64 = True
                 else:
-                    response = requests.get(link, stream=True)
+                    response = requests.get(link, stream=True, timeout=10)
                     ext = self.get_extension_from_link(link)
                     is_base64 = False
 
@@ -210,6 +211,9 @@ class AutoCrawler:
                         os.rename(path, path2)
                         print('Renamed extension {} -> {}'.format(ext, ext2))
 
+            except KeyboardInterrupt:
+                break
+                        
             except Exception as e:
                 print('Download failed - ', e)
                 continue
@@ -237,7 +241,7 @@ class AutoCrawler:
                 links = collect.naver(keyword, add_url)
 
             elif site_code == Sites.GOOGLE_FULL:
-                links = collect.google_full(keyword, add_url)
+                links = collect.google_full(keyword, add_url, self.limit)
 
             elif site_code == Sites.NAVER_FULL:
                 links = collect.naver_full(keyword, add_url)
@@ -254,10 +258,14 @@ class AutoCrawler:
 
         except Exception as e:
             print('Exception {}:{} - {}'.format(site_name, keyword, e))
+            return
 
     def download(self, args):
         self.download_from_site(keyword=args[0], site_code=args[1])
 
+    def init_worker(self):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        
     def do_crawling(self):
         keywords = self.get_keywords()
 
@@ -283,10 +291,15 @@ class AutoCrawler:
                 else:
                     tasks.append([keyword, Sites.NAVER])
 
-        pool = Pool(self.n_threads)
-        pool.map_async(self.download, tasks)
-        pool.close()
-        pool.join()
+        try:
+            pool = Pool(self.n_threads, initializer=self.init_worker)
+            pool.map(self.download, tasks)
+        except KeyboardInterrupt:
+            pool.terminate()
+            pool.join()
+        else:
+            pool.terminate()
+            pool.join()
         print('Task ended. Pool join.')
 
         self.imbalance_check()
@@ -352,7 +365,7 @@ if __name__ == '__main__':
                              'But unstable on thumbnail mode. '
                              'Default: "auto" - false if full=false, true if full=true')
     parser.add_argument('--limit', type=int, default=0,
-                        help='Maximum count of images to download per site. (0: infinite)')
+                        help='Maximum count of images to download per site.')
     parser.add_argument('--proxy-list', type=str, default='',
                         help='The comma separated proxy list like: "socks://127.0.0.1:1080,http://127.0.0.1:1081". '
                              'Every thread will randomly choose one from the list.')

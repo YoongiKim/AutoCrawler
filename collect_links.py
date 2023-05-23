@@ -132,7 +132,6 @@ class CollectLinks:
         except ElementNotVisibleException:
             pass
 
-        # photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="bRMDJf islir"]')
         photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class=" bRMDJf islir"]')
 
         print('Scraping links')
@@ -220,7 +219,6 @@ class CollectLinks:
 
         NUM_MAX_RETRY = 30
         NUM_MAX_SCROLL_PATIENCE = 100
-        # while True:
         for _ in range(limit):
             try:
                 xpath = '//div[@id="islsp"]//div[@class="v4dQwb"]'

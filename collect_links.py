@@ -132,7 +132,7 @@ class CollectLinks:
         except ElementNotVisibleException:
             pass
 
-        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class=" bRMDJf islir"]')
+        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="isv-r PNCib MSM1fd BUooTd"]')
 
         print('Scraping links')
 

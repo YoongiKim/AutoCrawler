@@ -2,5 +2,5 @@ certifi
 chardet
 idna
 requests
-selenium
+selenium==3.5.0
 webdriver-manager

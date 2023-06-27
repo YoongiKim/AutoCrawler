@@ -198,6 +198,63 @@ class CollectLinks:
 
         return links
 
+    def baidu(self, keyword, add_url=""):
+        url = r"https://image.baidu.com/search/index?tn=baiduimage&ipn=r&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=1687882242293_R&pv=&ic=&nc=1&z=&hd=&latest=&copyright=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&dyTabStr=MCwxLDYsMyw0LDUsMiw4LDcsOQ%3D%3D&ie=utf-8&sid=&word=" + keyword
+        self.browser.get(url)
+
+        time.sleep(1)
+
+        print('Scrolling down')
+
+        elem = self.browser.find_element(By.TAG_NAME, "body")
+
+        for i in range(20):
+            elem.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.2)
+
+        # try:
+        #     # You may need to change this. Because google image changes rapidly.
+        #     # btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
+        #     # self.wait_and_click('//input[@id="smb"]')
+        #     self.wait_and_click('//input[@type="button"]')
+
+        #     for i in range(60):
+        #         elem.send_keys(Keys.PAGE_DOWN)
+        #         time.sleep(0.2)
+
+        # except ElementNotVisibleException:
+        #     pass
+
+        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//li[@class="imgitem"]')
+
+        print('Scraping links')
+
+        links = []
+
+        for idx, box in enumerate(photo_grid_boxes):
+            # print('Scraping', idx)
+            try:
+                imgs = box.find_elements(By.TAG_NAME, 'img')
+
+                for img in imgs:
+                    # self.highlight(img)
+                    src = img.get_attribute("src")
+
+                    # Google seems to preload 20 images as base64
+                    # if str(src).startswith('data:'):
+                        # src = img.get_attribute("data-iurl")
+                    links.append(src)
+
+            except Exception as e:
+                print('[Exception occurred while collecting links from baidu] {}'.format(e))
+
+        links = self.remove_duplicates(links)
+
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('baidu', keyword, len(links)))
+        self.browser.close()
+
+        return links
+
     def google_full(self, keyword, add_url="", limit=100):
         print('[Full Resolution Mode]')
 
@@ -276,7 +333,6 @@ class CollectLinks:
 
         links = []
         count = 1
-
         last_scroll = 0
         scroll_patience = 0
 
@@ -321,7 +377,75 @@ class CollectLinks:
         return links
 
 
+
+    def baidu_full(self, keyword, add_url="", limit=100):
+        print('[Full Resolution Mode]')
+
+        # 百度图片-期望内容的预览页面
+        url = r"https://image.baidu.com/search/index?tn=baiduimage&ipn=r&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=1687882242293_R&pv=&ic=&nc=1&z=&hd=&latest=&copyright=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&dyTabStr=MCwxLDYsMyw0LDUsMiw4LDcsOQ%3D%3D&ie=utf-8&sid=&word=" + keyword
+
+        self.browser.get(url)
+        time.sleep(1)
+
+        # 点击第一个搜索结果
+        self.wait_and_click('//li[@pn="0"]')
+        time.sleep(1)
+        # 百度点击搜索结果后会打开一个新的页面，将driver切换到该页面
+        self.browser.switch_to.window(self.browser.window_handles[-1])
+        elem = self.browser.find_element(By.TAG_NAME, "body")
+        links = []
+        limit = 10000 if limit == 0 else limit
+        count = 1
+        last_scroll = 0
+        scroll_patience = 0
+        NUM_MAX_SCROLL_PATIENCE = 100
+
+        while len(links) < limit:
+            try:
+                # 获取图片所在的元素
+                xpath = '//div[@class="img-wrapper"]//img[@class="currentImg"]'
+                imgs = elem.find_elements(By.XPATH, xpath)
+
+                for img in imgs:
+                    self.highlight(img)
+                    src = img.get_attribute('src')
+
+                    if src is not None and src not in links:
+                        links.append(src)
+                        print('%d: %s' % (count, src))
+                        count += 1
+
+            except KeyboardInterrupt:
+                break
+                
+            except StaleElementReferenceException:
+                # print('[Expected Exception - StaleElementReferenceException]')
+                pass
+            except Exception as e:
+                print('[Exception occurred while collecting links from baidu_full] {}'.format(e))
+
+            # scroll = self.get_scroll()
+            # print("---", scroll)
+            # if scroll == last_scroll:
+            #     scroll_patience += 1
+            # else:
+            #     scroll_patience = 0
+            #     last_scroll = scroll
+
+            # if scroll_patience >= NUM_MAX_SCROLL_PATIENCE:
+            #     break
+
+            elem.send_keys(Keys.RIGHT)
+
+        links = self.remove_duplicates(links)
+
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('baidu_full', keyword, len(links)))
+        self.browser.close()
+
+        return links
+
+
 if __name__ == '__main__':
     collect = CollectLinks()
-    links = collect.naver_full('박보영')
+    links = collect.baidu('flower')
     print(len(links), links)

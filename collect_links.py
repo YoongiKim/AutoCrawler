@@ -19,34 +19,15 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import ElementNotVisibleException, StaleElementReferenceException
-import platform
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import os.path as osp
 
 
 class CollectLinks:
     def __init__(self, no_gui=False, proxy=None):
-        executable = ''
-
-        if platform.system() == 'Windows':
-            print('Detected OS : Windows')
-            executable = './chromedriver/chromedriver_win.exe'
-        elif platform.system() == 'Linux':
-            print('Detected OS : Linux')
-            executable = './chromedriver/chromedriver_linux'
-        elif platform.system() == 'Darwin':
-            print('Detected OS : Mac')
-            executable = './chromedriver/chromedriver_mac'
-        else:
-            raise OSError('Unknown OS Type')
-
-        if not osp.exists(executable):
-            raise FileNotFoundError('Chromedriver file should be placed at {}'.format(executable))
-
         chrome_options = Options()
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')

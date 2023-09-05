@@ -23,6 +23,7 @@ import platform
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import os.path as osp
 
@@ -53,7 +54,7 @@ class CollectLinks:
             chrome_options.add_argument('--headless')
         if proxy:
             chrome_options.add_argument("--proxy-server={}".format(proxy))
-        self.browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+        self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
         browser_version = 'Failed to detect version'
         chromedriver_version = 'Failed to detect version'

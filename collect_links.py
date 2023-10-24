@@ -114,25 +114,15 @@ class CollectLinks:
         except ElementNotVisibleException:
             pass
 
-        photo_grid_boxes = self.browser.find_elements(By.XPATH, '//div[@class="isv-r PNCib MSM1fd BUooTd"]')
-
         print('Scraping links')
 
+        imgs = self.browser.find_elements(By.XPATH, '//div[@class="isv-r PNCib ViTmJb BUooTd"]//img[@class="rg_i Q4LuWd"]')
+
         links = []
-
-        for idx, box in enumerate(photo_grid_boxes):
-            # print('Scraping', idx)
+        for idx, img in enumerate(imgs):
             try:
-                imgs = box.find_elements(By.TAG_NAME, 'img')
-
-                for img in imgs:
-                    # self.highlight(img)
-                    src = img.get_attribute("src")
-
-                    # Google seems to preload 20 images as base64
-                    if str(src).startswith('data:'):
-                        src = img.get_attribute("data-iurl")
-                    links.append(src)
+                src = img.get_attribute("src")
+                links.append(src)
 
             except Exception as e:
                 print('[Exception occurred while collecting links from google] {}'.format(e))
@@ -158,8 +148,7 @@ class CollectLinks:
             elem.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.2)
 
-        imgs = self.browser.find_elements(By.XPATH,
-                                          '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
+        imgs = self.browser.find_elements(By.XPATH, '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
 
         print('Scraping links')
 
@@ -186,12 +175,13 @@ class CollectLinks:
         self.browser.get("https://www.google.com/search?q={}&tbm=isch{}".format(keyword, add_url))
         time.sleep(1)
 
-        elem = self.browser.find_element(By.TAG_NAME, "body")
+        self.wait_and_click('//div[@class="isv-r PNCib ViTmJb BUooTd"]//img[@class="rg_i Q4LuWd"]')
+        time.sleep(1)
+
+        body = self.browser.find_element(By.TAG_NAME, "body")
+        sidebar = body.find_element(By.XPATH, '//div[@id="islsp"]')
 
         print('Scraping links')
-
-        self.wait_and_click('//div[@data-ri="0"]')
-        time.sleep(1)
 
         links = []
         limit = 10000 if limit == 0 else limit
@@ -202,18 +192,27 @@ class CollectLinks:
 
         while len(links) < limit:
             try:
-                xpath = '//div[@class="n4hgof"]//img[@class="r48jcc pT0Scc iPVvYb"]'
-                imgs = elem.find_elements(By.XPATH, xpath)
+                xpath = '//div[@id="islsp"]//div[@class="tvh9oe BIB1wf hVa2Fd"]//img[@class="sFlh5c pT0Scc iPVvYb"]'
 
-                for img in imgs:
-                    self.highlight(img)
-                    src = img.get_attribute('src')
+                t1 = time.time()
+                while True:
+                    imgs = body.find_elements(By.XPATH, xpath)
+                    t2 = time.time()
+                    if len(imgs) > 0:
+                        break
+                    if t2 - t1 > 5:
+                        print(f"Failed to locate image by XPATH: {xpath}")
+                        break
+                    time.sleep(0.1)
+
+                if len(imgs) > 0:
+                    self.highlight(imgs[0])
+                    src = imgs[0].get_attribute('src')
 
                     if src is not None and src not in links:
                         links.append(src)
                         print('%d: %s' % (count, src))
                         count += 1
-
             except KeyboardInterrupt:
                 break
                 
@@ -233,7 +232,7 @@ class CollectLinks:
             if scroll_patience >= NUM_MAX_SCROLL_PATIENCE:
                 break
 
-            elem.send_keys(Keys.RIGHT)
+            body.send_keys(Keys.RIGHT)
 
         links = self.remove_duplicates(links)
 

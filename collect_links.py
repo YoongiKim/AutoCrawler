@@ -29,7 +29,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 class CollectLinks:
     def __init__(self, no_gui=False, proxy=None):
         chrome_options = Options()
-        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--no-sandbox')  # To maintain user cookies
         chrome_options.add_argument('--disable-dev-shm-usage')
         if no_gui:
             chrome_options.add_argument('--headless')
@@ -97,26 +97,27 @@ class CollectLinks:
 
         elem = self.browser.find_element(By.TAG_NAME, "body")
 
-        for i in range(60):
+        last_scroll = 0
+        scroll_patience = 0
+        NUM_MAX_SCROLL_PATIENCE = 50
+
+        while True:
             elem.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.2)
 
-        try:
-            # You may need to change this. Because google image changes rapidly.
-            # btn_more = self.browser.find_element(By.XPATH, '//input[@value="결과 더보기"]')
-            # self.wait_and_click('//input[@id="smb"]')
-            self.wait_and_click('//input[@type="button"]')
+            scroll = self.get_scroll()
+            if scroll == last_scroll:
+                scroll_patience += 1
+            else:
+                scroll_patience = 0
+                last_scroll = scroll
 
-            for i in range(60):
-                elem.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.2)
-
-        except ElementNotVisibleException:
-            pass
+            if scroll_patience >= NUM_MAX_SCROLL_PATIENCE:
+                break
 
         print('Scraping links')
 
-        imgs = self.browser.find_elements(By.XPATH, '//div[@class="isv-r PNCib ViTmJb BUooTd"]//img[@class="rg_i Q4LuWd"]')
+        imgs = self.browser.find_elements(By.XPATH, '//div[@jsname="dTDiAc"]/div[@jsname="qQjpJ"]//img')
 
         links = []
         for idx, img in enumerate(imgs):
@@ -148,7 +149,7 @@ class CollectLinks:
             elem.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.2)
 
-        imgs = self.browser.find_elements(By.XPATH, '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
+        imgs = self.browser.find_elements(By.XPATH, '//div[@class="tile_item _fe_image_tab_content_tile"]//img[@class="_fe_image_tab_content_thumbnail_image"]')
 
         print('Scraping links')
 
@@ -175,11 +176,11 @@ class CollectLinks:
         self.browser.get("https://www.google.com/search?q={}&tbm=isch{}".format(keyword, add_url))
         time.sleep(1)
 
-        self.wait_and_click('//div[@class="isv-r PNCib ViTmJb BUooTd"]//img[@class="rg_i Q4LuWd"]')
+        # Click the first image to get full resolution images
+        self.wait_and_click('//div[@jsname="dTDiAc"]')
         time.sleep(1)
 
         body = self.browser.find_element(By.TAG_NAME, "body")
-        sidebar = body.find_element(By.XPATH, '//div[@id="islsp"]')
 
         print('Scraping links')
 
@@ -192,7 +193,8 @@ class CollectLinks:
 
         while len(links) < limit:
             try:
-                xpath = '//div[@id="islsp"]//div[@class="tvh9oe BIB1wf hVa2Fd"]//img[@class="sFlh5c pT0Scc iPVvYb"]'
+                # Google renders compressed image first, and overlaps with full image later.
+                xpath = '//div[@jsname="figiqf"]//img[not(contains(@src,"gstatic.com"))]'
 
                 t1 = time.time()
                 while True:
@@ -252,7 +254,8 @@ class CollectLinks:
 
         print('Scraping links')
 
-        self.wait_and_click('//div[@class="photo_bx api_ani_send _photoBox"]')
+        # Click the first image
+        self.wait_and_click('//div[@class="tile_item _fe_image_tab_content_tile"]//img[@class="_fe_image_tab_content_thumbnail_image"]')
         time.sleep(1)
 
         links = []
@@ -263,7 +266,7 @@ class CollectLinks:
 
         while True:
             try:
-                xpath = '//div[@class="image _imageBox"]/img[@class="_image"]'
+                xpath = '//img[@class="_fe_image_viewer_image_fallback_target"]'
                 imgs = self.browser.find_elements(By.XPATH, xpath)
 
                 for img in imgs:
@@ -292,7 +295,6 @@ class CollectLinks:
                 break
 
             elem.send_keys(Keys.RIGHT)
-            elem.send_keys(Keys.PAGE_DOWN)
 
         links = self.remove_duplicates(links)
 

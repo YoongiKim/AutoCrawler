@@ -21,7 +21,6 @@ from multiprocessing import Pool
 import signal
 import argparse
 from collect_links import CollectLinks
-import imghdr
 import base64
 from pathlib import Path
 import random
@@ -116,11 +115,26 @@ class AutoCrawler:
             return default
 
     @staticmethod
+    def get_extension_from_header(header):
+        if header.startswith(b'\xff\xd8\xff'):
+            return 'jpg'
+        elif header.startswith(b'\x89PNG\r\n\x1a\n'):
+            return 'png'
+        elif header[:6] in (b'GIF87a', b'GIF89a'):
+            return 'gif'
+        elif header.startswith(b'BM'):
+            return 'bmp'
+        elif header.startswith((b'MM\x00*', b'II*\x00')):
+            return 'tiff'
+        elif len(header) >= 12 and header[:4] == b'RIFF' and header[8:12] == b'WEBP':
+            return 'webp'
+
+        return None
+
+    @staticmethod
     def validate_image(path):
-        ext = imghdr.what(path)
-        if ext == 'jpeg':
-            ext = 'jpg'
-        return ext  # returns None if not valid
+        with open(path, 'rb') as file:
+            return AutoCrawler.get_extension_from_header(file.read(32))  # returns None if not valid
 
     @staticmethod
     def make_dir(dirname):
